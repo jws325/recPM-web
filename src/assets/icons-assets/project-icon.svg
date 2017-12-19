@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20.562" height="23.75" viewBox="0 0 20.562 23.75">
+  <defs>
+    <style>
+      .cls-1 {
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="project-icon.svg" class="cls-1" d="M207.5,126.367l-10.282-5.936V108.558l10.282-5.936,10.282,5.936v11.873Zm-8.522-6.952,7.521,4.342V115.9l-7.521-4.342v7.862Zm8.52-14.758-8.472,4.892,8.472,4.891,8.473-4.891Zm8.521,6.9-7.541,4.354v7.86l7.541-4.354v-7.86Z" transform="translate(-197.219 -102.625)"/>
+</svg>

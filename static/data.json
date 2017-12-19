@@ -1,0 +1,157 @@
+{
+  "people": {
+      "managers": [
+          {"id": "m1", "name": "Suzanne Watkins", "portrait": "21.jpg"},
+          {"id": "m2", "name": "Sally Barrett", "portrait": "42.jpg"},
+          {"id": "m3", "name": "Duane Harrison", "portrait": "78.jpg"},
+          {"id": "m4", "name": "Reginald Beck", "portrait": "18.jpg"},
+          {"id": "m5", "name": "Everett Jennings", "portrait": "21-2.jpg"},
+          {"id": "m6", "name": "Tom Carpenter", "portrait": "41.jpg"},
+          {"id": "m7", "name": "Roberto Larson", "portrait": "34.jpg"},
+          {"id": "m8", "name": "Emily Gordon", "portrait": "71.jpg"},
+          {"id": "m9", "name": "Marion Peters", "portrait": "39.jpg"}
+      ],
+      "workers": [
+          {"id": "w1", "name": "Suzanne Watkins", "portrait": "21.jpg"},
+          {"id": "w2", "name": "Sally Barrett", "portrait": "42.jpg"},
+          {"id": "w3", "name": "Duane Harrison", "portrait": "78.jpg"},
+          {"id": "w4", "name": "Reginald Beck", "portrait": "18.jpg"},
+          {"id": "w5", "name": "Everett Jennings", "portrait": "21-2.jpg"},
+          {"id": "w6", "name": "Tom Carpenter", "portrait": "41.jpg"},
+          {"id": "w7", "name": "Roberto Larson", "portrait": "34.jpg"},
+          {"id": "w8", "name": "Emily Gordon", "portrait": "71.jpg"},
+          {"id": "w9", "name": "Marion Peters", "portrait": "39.jpg"}
+      ]
+  },
+  "nodes": {
+      "companyName": "Company",
+      "name": "Total",
+      "type": "project",
+      "importance": "normal",
+      "id": "total",
+      "children": [
+          {
+              "name": "Project 1",
+              "type": "project",
+              "importance": "low",
+              "id":"node1",
+              "dependencies": ["node2", "node4", "node6"],
+              "children": [
+                  {
+                      "name": "Project Bravo",
+                      "type": "project",
+                      "importance": "critical",
+                      "children": [
+                          {
+                              "name": "Task 1",
+                              "type": "task",
+                              "status": "completed",
+                              "progress": 0.9,
+                              "importance": "high"
+                          },
+                          {
+                              "name": "Task 2",
+                              "type": "task",
+                              "progress": 0,
+                              "importance": "normal"
+                          }
+                      ]
+                  },
+                  {
+                      "name": "Project 3",
+                      "type": "project",
+                      "importance": "high",
+                      "children": [
+                          {
+                              "name": "Task 1",
+                              "type": "task",
+                              "importance": "normal",
+                              "progress": 0
+                          },
+                          {
+                              "name": "Task 2",
+                              "type": "task",
+                              "importance": "critical",
+                              "progress": 0
+                          },
+                          {
+                              "name": "Task 3",
+                              "type": "task",
+                              "importance": "low",
+                              "progress": 0
+                          },
+                          {
+                              "name": "Task 4",
+                              "type": "task",
+                              "importance": "normal",
+                              "progress": 0
+                          },
+                          {
+                              "name": "Task 3",
+                              "type": "task",
+                              "importance": "low",
+                              "progress": 0
+                          },
+                          {
+                              "name": "Task 4",
+                              "type": "task",
+                              "importance": "high",
+                              "progress": 0
+                          }
+                      ]
+                  },
+                  {
+                      "name": "Project 4",
+                      "type": "project",
+                      "progress": 0
+                  }
+              ]
+          },
+          {
+              "name": "Project 5",
+              "type": "project",
+              "progress": 0,
+              "importance": "normal",
+              "id":"node2",
+              "status": "assigned"
+          },
+          {
+              "name": "Task 1",
+              "type": "task",
+              "progress": 0.4,
+              "importance": "critical",
+              "id":"node3",
+              "dependencies": [],
+              "status": "completed",
+              "workers": ["w3", "w5"]
+          },
+          {
+              "name": "Task 2",
+              "type": "task",
+              "progress": 0.2,
+              "importance": "normal",
+              "status": "assigned",
+              "id":"node4",
+              "recurring": true
+          },
+          {
+              "name": "Task 3",
+              "type": "task",
+              "progress": 0,
+              "importance": "normal",
+              "id":"node5",
+              "dependencies": ["node4"],
+              "recurring": "true",
+              "workers": ["w1", "w7"]
+          },
+          {
+              "name": "Task 4",
+              "type": "task",
+              "progress": 0.5,
+              "importance": "normal",
+              "id":"node6",
+              "status": "completed"
+          }
+      ]
+  }
+}
