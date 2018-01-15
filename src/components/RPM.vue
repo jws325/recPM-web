@@ -79,6 +79,7 @@
             </div>
           </transition>
           <div class="view-type">
+			<h3>Select User Role (For Demo)</h3>
             <label><input type="radio" name="view-type" value="owner" v-model="viewType"> Project Owner</label><br>
             <label><input type="radio" name="view-type" value="voter" v-model="viewType"> Voter</label>
           </div>
@@ -118,7 +119,7 @@ export default {
         }
       },
       headerData: {
-        companyName: 'Test Project #1',
+        companyName: 'RecPM.io',
         projectAddress: '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe',
         voterAddress: '0x281055afc982d96fab65b3a49cac8b878184cb16',
         projectUpvotes: 42,

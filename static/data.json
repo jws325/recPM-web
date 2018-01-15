@@ -1,156 +1,151 @@
 {
   "people": {
       "managers": [
-          {"id": "m1", "name": "Suzanne Watkins", "portrait": "21.jpg"},
-          {"id": "m2", "name": "Sally Barrett", "portrait": "42.jpg"},
-          {"id": "m3", "name": "Duane Harrison", "portrait": "78.jpg"},
-          {"id": "m4", "name": "Reginald Beck", "portrait": "18.jpg"},
-          {"id": "m5", "name": "Everett Jennings", "portrait": "21-2.jpg"},
-          {"id": "m6", "name": "Tom Carpenter", "portrait": "41.jpg"},
-          {"id": "m7", "name": "Roberto Larson", "portrait": "34.jpg"},
-          {"id": "m8", "name": "Emily Gordon", "portrait": "71.jpg"},
-          {"id": "m9", "name": "Marion Peters", "portrait": "39.jpg"}
+          {"id": "m1", "name": "James Shaughnessy", "portrait": "js.jpg"}
       ],
       "workers": [
-          {"id": "w1", "name": "Suzanne Watkins", "portrait": "21.jpg"},
-          {"id": "w2", "name": "Sally Barrett", "portrait": "42.jpg"},
-          {"id": "w3", "name": "Duane Harrison", "portrait": "78.jpg"},
-          {"id": "w4", "name": "Reginald Beck", "portrait": "18.jpg"},
-          {"id": "w5", "name": "Everett Jennings", "portrait": "21-2.jpg"},
-          {"id": "w6", "name": "Tom Carpenter", "portrait": "41.jpg"},
-          {"id": "w7", "name": "Roberto Larson", "portrait": "34.jpg"},
-          {"id": "w8", "name": "Emily Gordon", "portrait": "71.jpg"},
-          {"id": "w9", "name": "Marion Peters", "portrait": "39.jpg"}
+          {"id": "w1", "name": "James Shaughnessy", "portrait": "js.jpg"},
+          {"id": "w2", "name": "Dmitry Malyovaniy", "portrait": "dm.png"},
+          {"id": "w3", "name": "Matthew Di Ferrante", "portrait": "md.png"}
       ]
   },
   "nodes": {
-      "companyName": "Company",
-      "name": "Total",
+      "companyName": "RecPM.io",
+      "name": "RPM",
       "type": "project",
       "importance": "normal",
       "id": "total",
       "children": [
           {
-              "name": "Project 1",
+              "name": "Conduct ICO",
               "type": "project",
-              "importance": "low",
-              "id":"node1",
-              "dependencies": ["node2", "node4", "node6"],
+              "importance": "normal",
+              "id":"ico",
+              "dependencies": ["frontEndDemo", "whitepaper", "token", "preICO", "website"],
               "children": [
-                  {
-                      "name": "Project Bravo",
-                      "type": "project",
-                      "importance": "critical",
-                      "children": [
-                          {
-                              "name": "Task 1",
-                              "type": "task",
-                              "status": "completed",
-                              "progress": 0.9,
-                              "importance": "high"
-                          },
-                          {
-                              "name": "Task 2",
-                              "type": "task",
-                              "progress": 0,
-                              "importance": "normal"
-                          }
-                      ]
-                  },
-                  {
-                      "name": "Project 3",
-                      "type": "project",
-                      "importance": "high",
-                      "children": [
-                          {
-                              "name": "Task 1",
-                              "type": "task",
-                              "importance": "normal",
-                              "progress": 0
-                          },
-                          {
-                              "name": "Task 2",
-                              "type": "task",
-                              "importance": "critical",
-                              "progress": 0
-                          },
-                          {
-                              "name": "Task 3",
-                              "type": "task",
-                              "importance": "low",
-                              "progress": 0
-                          },
-                          {
-                              "name": "Task 4",
-                              "type": "task",
-                              "importance": "normal",
-                              "progress": 0
-                          },
-                          {
-                              "name": "Task 3",
-                              "type": "task",
-                              "importance": "low",
-                              "progress": 0
-                          },
-                          {
-                              "name": "Task 4",
-                              "type": "task",
-                              "importance": "high",
-                              "progress": 0
-                          }
-                      ]
-                  },
-                  {
-                      "name": "Project 4",
-                      "type": "project",
-                      "progress": 0
-                  }
+				  {
+					  "name": "Create Bounty Program",
+					  "type": "task",
+					  "progress": 0.0,
+					  "importance": "critical",
+					  "id":"bounty",
+					  "status": "assigned",
+					  "workers": ["w1"],
+					  "dependencies": ["ann"]
+				  },
+				  {
+					  "name": "Create Announcement",
+					  "type": "task",
+					  "progress": 0.0,
+					  "importance": "critical",
+					  "id":"ann",
+					  "status": "assigned",
+					  "workers": ["w1"]
+				  },
+				  {
+					  "name": "Create Smart Contract",
+					  "type": "task",
+					  "progress": 0.0,
+					  "importance": "critical",
+					  "id":"smart",
+					  "status": "assigned",
+					  "workers": ["w1"]
+				  },		
+				  {
+					  "name": "Complete legal analysis",
+					  "type": "task",
+					  "progress": 0.0,
+					  "importance": "critical",
+					  "id":"smart",
+					  "status": "assigned",
+					  "workers": ["w1"]
+				  },					  
+				  {
+					  "name": "Engage public on social media",
+					  "type": "task",
+					  "progress": 0.0,
+					  "importance": "critical",
+					  "id":"socialMedia",
+					  "status": "assigned",
+					  "workers": ["w1"],
+					  "recurring": true
+				  }
               ]
           },
           {
-              "name": "Project 5",
-              "type": "project",
-              "progress": 0,
-              "importance": "normal",
-              "id":"node2",
-              "status": "assigned"
-          },
-          {
-              "name": "Task 1",
+              "name": "Complete Front End Demo",
               "type": "task",
-              "progress": 0.4,
+              "progress": 0.75,
               "importance": "critical",
-              "id":"node3",
+              "id":"frontEndDemo",
               "dependencies": [],
-              "status": "completed",
-              "workers": ["w3", "w5"]
-          },
-          {
-              "name": "Task 2",
-              "type": "task",
-              "progress": 0.2,
-              "importance": "normal",
               "status": "assigned",
-              "id":"node4",
-              "recurring": true
+              "workers": ["w2"]
           },
           {
-              "name": "Task 3",
-              "type": "task",
-              "progress": 0,
-              "importance": "normal",
-              "id":"node5",
-              "dependencies": ["node4"],
-              "recurring": "true",
-              "workers": ["w1", "w7"]
-          },
-          {
-              "name": "Task 4",
+              "name": "Complete Whitepaper",
               "type": "task",
               "progress": 0.5,
-              "importance": "normal",
-              "id":"node6",
-              "status": "completed"
+              "importance": "critical",
+              "status": "assigned",
+              "id":"whitepaper",
+              "recurring": false,
+			  "workers": ["w1"]
+          },
+          {
+              "name": "Complete RPM Token",
+              "type": "task",
+              "progress": 0.5,
+              "importance": "critical",
+              "id":"token",
+              "status": "assigned",
+			  "workers": ["w3"]
+          },
+          {
+              "name": "Create RecPM.io website",
+              "type": "task",
+              "progress": 0.1,
+              "importance": "critical",
+              "id":"website",
+              "status": "assigned",
+			  "workers": ["w1"]
+          },
+          {
+              "name": "Create Social Media accounts",
+              "type": "task",
+              "progress": 0.0,
+              "importance": "critical",
+              "id":"social",
+              "status": "assigned",
+			  "workers": ["w1"]
+          },		  
+          {
+              "name": "Conduct Pre-ICO",
+              "type": "project",
+              "importance": "critical",
+              "id":"preICO",
+              "dependencies": [],
+              "children": [
+				 {
+					  "name": "Contact Investors",
+					  "type": "task",
+					  "progress": 0.0,
+					  "importance": "critical",
+					  "id":"contactSaftInvestors",
+					  "status": "assigned",
+					  "workers": ["w1"]
+				 },
+				 {
+					  "name": "Complete SAFT agreements",
+					  "type": "task",
+					  "progress": 0.0,
+					  "importance": "critical",
+					  "id":"saft",
+					  "status": "assigned",
+					  "workers": ["w1"],
+					  "dependencies": ["contactSaftInvestors"]
+				 }				 
+              ]
           }
       ]
   }
