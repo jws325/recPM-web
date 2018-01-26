@@ -27,12 +27,12 @@
             v-bind:view-type="viewType">
           </rpm-diagram>
           <div class="diagram-options">
-            <label class="proposed-switcher"><input type="checkbox" v-model="showProposed"> <span>Show Proposed</span>
+            <label class="proposed-switcher"><input type="checkbox" v-model="showProposed"> <span>Proposed</span>
               <transition name="fade">
                 <span class="faded-text" v-if="showProposed && !(parentalDatum.proposedChildren && parentalDatum.proposedChildren.length)">(none)</span>
               </transition>
             </label><br>
-            <label class="completed-switcher"><input type="checkbox" v-model="showCompleted"> <span>Show Completed</span>
+            <label class="completed-switcher"><input type="checkbox" v-model="showCompleted"> <span>Completed</span>
               <transition name="fade">
                 <span class="faded-text" v-if="showCompleted && !(parentalDatum.completedChildren && parentalDatum.completedChildren.length)">(none)</span>
               </transition>
@@ -79,7 +79,6 @@
             </div>
           </transition>
           <div class="view-type">
-			<h3>Select User Role (For Demo)</h3>
             <label><input type="radio" name="view-type" value="owner" v-model="viewType"> Project Owner</label><br>
             <label><input type="radio" name="view-type" value="voter" v-model="viewType"> Voter</label>
           </div>
@@ -119,7 +118,7 @@ export default {
         }
       },
       headerData: {
-        companyName: 'RecPM.io',
+        companyName: 'Test Project #1',
         projectAddress: '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe',
         voterAddress: '0x281055afc982d96fab65b3a49cac8b878184cb16',
         projectUpvotes: 42,
@@ -673,25 +672,16 @@ export default {
 
   .info-buttons-wrapper .edit-button {
     border-bottom: 2px solid #abd8ff;
+    color: #3897da;
   }
 
   .info-buttons-wrapper .remove-button {
     border-bottom: 2px solid #ffa8a3;
+    color: #e15e5e;
   }
 
   .info-buttons-wrapper .cancel-button {
     border-bottom: 2px solid #abd8ff;
-  }
-
-  .buttons-zone:hover .edit-button, .no-fade .edit-button {
-    color: #3897da;
-  }
-
-  .buttons-zone:hover .remove-button, .no-fade .remove-button {
-    color: #e15e5e;
-  }
-
-  .buttons-zone:hover .cancel-button, .no-fade .cancel-button {
     color: #3897da;
   }
 

@@ -141,6 +141,14 @@
   fill: #8ae997;
 }
 
+.rpm-svg .node .item-container {
+  transition: opacity 0.2s;
+}
+
+.rpm-svg .node .item-container:hover {
+  opacity: 0.8;
+}
+
 .rpm-svg .item-container .draft-g {
     opacity: 0;
     transition: opacity 0.5s ease;
@@ -191,7 +199,7 @@
   transition: fill 0.3s, stroke 0.3s, stroke-width 0.3s, stroke-dashoffset 0.8s ease;
 }
 
-.rpm-svg .node .node-text path {
+.rpm-svg .node .node-text path, .rpm-svg .node .text-line text {
   transition: fill 0.3s, opacity 0.5s;
 }
 
@@ -274,8 +282,29 @@
     opacity: 0;
 }
 
-.rpm-svg .node:not([data-recurring]) .task-check-icon {
+.rpm-svg .node:not([data-recurring]).completed .task-check-icon {
     stroke-dashoffset: 0 !important;
+}
+
+@keyframes recurring-icon-animation {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
+.rpm-svg .node[data-recurring] .task-recurring-icon {
+  transform: rotate(0deg);
+}
+
+.rpm-svg .node[data-recurring].completed .task-recurring-icon {
+  animation-name: recurring-icon-animation;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  /* transform: rotate(360deg); */
+}
+
+.rpm-svg .node .task-check-icon {
+  /* display: none; */
 }
 
 /* body */
@@ -312,7 +341,7 @@
 }
 
 .rpm-svg .task-node[data-importance="low"] .task-cap {
-    fill: #27bd75;
+    fill: #22d17d;
     stroke: #18b067;
 }
 
@@ -330,7 +359,7 @@
 }
 
 .rpm-svg .task-node[data-importance="normal"] .task-cap {
-    fill: #38aae8;
+    fill: #44baf9;
     stroke: #239bdb;
 }
 
@@ -348,7 +377,7 @@
 }
 
 .rpm-svg .task-node[data-importance="high"] .task-cap {
-    fill: #f1bf4a;
+    fill: #fbd04f;
     stroke: #e7b43d;
 }
 
@@ -366,7 +395,7 @@
 }
 
 .rpm-svg .task-node[data-importance="critical"] .task-cap {
-    fill: #f96a38;
+    fill: #fa7a4d;
     stroke: #f15018;
 }
 

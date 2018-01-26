@@ -66,7 +66,7 @@ export default {
       this.diagram.update(this.diagram.activeId)
     })
     this.$parent.$on('completeChanged', (e) => {
-      this.diagram.prepareItemToComplete(this.diagram.focusId, e === 1)
+      this.diagram.prepareItemToComplete(this.diagram.focusId, !(e < 1 || !e))
     })
   },
   methods: {
