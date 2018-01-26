@@ -290,8 +290,15 @@ RPM.prototype.showProposed = function (value) {
 }
 
 RPM.prototype.showCompleted = function (value) {
+  var hideFocused
+  hideFocused = !value && this.getFocusedDatum().data.status === 'completed' && !this.getFocusedDatum().data.recurring
   this._showCompleted = value
-  this.refreshView()
+
+  if (hideFocused) {
+    this.focusId = this.activeId
+  }
+
+  this.update(this.activeId, hideFocused ? null : 'refresh')
   return this._showCompleted
 }
 
@@ -516,7 +523,7 @@ RPM.prototype.drawNode = function (node, eventType) {
           return function (t) {
             let grow
             grow = d.id === th.activeId ? 2 : 1
-            th.updateNode(el, data, d3.interpolateNumber(el.node()._t, data.progress === 1 ? th.glowOptions.nodeT : grow)(t), d)
+            th.updateNode(el, data, d3.interpolateNumber(el.node()._t, grow)(t), d)
             th.updateTextPosition(el, data, d3.interpolateNumber(el.node()._textAngle, (d.id === th.activeId) ? getClosestAngle(el.node()._textAngle) : d.angle)(t))
           }
         })
@@ -646,79 +653,77 @@ RPM.prototype.drawNode = function (node, eventType) {
 }
 
 RPM.prototype.prepareItemToComplete = function (id, value) {
-  var th, node, el, transition, shadow, reflection, interpolatedT, valueT, startT, startY, itemEl
-  th = this
-  node = th._nodesById[id]
-  el = d3.select(node)
-  shadow = el.select('.shadow')
-  reflection = el.select('.reflection-g')
-  transition = d3.transition().duration(800)
-  itemEl = el.select('.item')
-  itemEl.transition(transition).tween('prepareItemToComplete', function () {
-    startT = node._t || 0
-    startY = node._itemY || 0
-    return function (t) {
-      interpolatedT = d3.interpolateNumber(startT, value ? th.glowOptions.nodeT : 1)(t)
-      valueT = value ? t : 1 - t
-      th.updateNode(el, node._data, interpolatedT, el.datum())
-      node._itemY = d3.interpolateNumber(startY, value ? -7 : 0)(t)
-      itemEl.attr('transform', 'translate(0, ' + node._itemY + ')')
-      th.updateTextPosition(el, node._data, node._textAngle)
-      shadow.style('opacity', valueT * 0.2)
-      reflection.style('opacity', 1 - valueT)
-    }
-  })
+  // var th, node, el, transition, shadow, reflection, interpolatedT, valueT, startT, startY, itemEl
+  // th = this
+  // node = th._nodesById[id]
+  // el = d3.select(node)
+  // shadow = el.select('.shadow')
+  // reflection = el.select('.reflection-g')
+  // transition = d3.transition().duration(800)
+  // itemEl = el.select('.item')
+  // itemEl.transition(transition).tween('prepareItemToComplete', function () {
+  //   startT = node._t || 0
+  //   startY = node._itemY || 0
+  //   return function (t) {
+  //     interpolatedT = d3.interpolateNumber(startT, value ? th.glowOptions.nodeT : 1)(t)
+  //     valueT = value ? t : 1 - t
+  //     th.updateNode(el, node._data, interpolatedT, el.datum())
+  //     node._itemY = d3.interpolateNumber(startY, value ? -7 : 0)(t)
+  //     itemEl.attr('transform', 'translate(0, ' + node._itemY + ')')
+  //     th.updateTextPosition(el, node._data, node._textAngle)
+  //     shadow.style('opacity', valueT * 0.2)
+  //     reflection.style('opacity', 1 - valueT)
+  //   }
+  // })
+
+  d3.select(this._nodesById[id]).classed('completed', value)
 }
 
 RPM.prototype.completeItem = function (id) {
-  var th, node, el, itemEl, startGlowT, startItemY, backEase, datum
+  var th, node, el, itemEl, startGlowT, datum
   th = this
-  backEase = d3.easeBackIn.overshoot(10)
   node = th._nodesById[id]
   node._completed = true
   el = d3.select(node)
   datum = el.datum()
   itemEl = el.select('.item')
-  el.transition().style('opacity', 0)
+
+  if (this._showCompleted) {
+    finishComplete()
+    return
+  }
+
   node._glowTransition = node._glowTransition || {}
   th.links.selectAll('.link[data-target=' + id + ']').each(function (d) {
-    d3.select(this).transition().ease(d3.easeQuadOut).delay(200).duration(400)
+    d3.select(this).transition().ease(d3.easeQuadOut).duration(400)
       .style('opacity', 0)
   })
-  d3.select(node._glowTransition).transition().duration(600).ease(d3.easeLinear).tween('itemAnimation', function () {
-    var itemScale, backT
-    startItemY = node._itemY || 0
-    return function (t) {
-      backT = backEase(t)
-      node._itemY = d3.interpolateNumber(startItemY, 0)(backT)
-      itemScale = 0.5 + Math.min(1, 1 - backT) * 0.5
-      itemEl.attr('transform', 'translate(0, ' + node._itemY + ') scale(' + [itemScale, itemScale] + ')')
-      el.style('opacity', 1 - t)
-      th.updateTextPosition(el, node._data, node._textAngle)
-    }
-  }).on('end', function () {
-    node._completed = false
-    itemEl.transition().attr('transform', 'scale(1, 1)')
-
-    if (datum.data.recurring) {
-      datum.data.progress = 0
-      this.focusId = id
-      th.update(th.activeId, 'refreshRecurring')
-    } else {
-      // th.removeItem(id)
-      datum.data.completed = true
-      th.update(th.activeId)
-    }
-  })
+  d3.select(node._glowTransition)
   .transition().ease(d3.easePoly).duration(th.glowOptions.duration).tween('tween', function () {
     startGlowT = node._glowT || 0
     return function (t) {
       node._glowT = d3.interpolateNumber(startGlowT, 1)(t)
       th.updateGlow(datum, node._glowT)
     }
-  }).on('end', function () {
+  }).on('end', finishComplete)
+
+  function finishComplete () {
     node._glowT = 0
-  })
+    node._completed = false
+    itemEl.transition().attr('transform', 'scale(1, 1)')
+
+    th.focusId = th._showCompleted || datum.data.recurring ? id : null
+
+    if (datum.data.recurring) {
+      datum.data.progress = 0
+      datum.data.status = ''
+    } else {
+      // th.removeItem(id)
+      // datum.data.completed = true
+      datum.data.status = 'completed'
+    }
+    th.update(th.activeId, datum.data.recurring || th._showCompleted ? 'endOfCompleteNode' : null)
+  }
 }
 
 RPM.prototype.updateGlow = function (datum, t) {
@@ -808,6 +813,7 @@ RPM.prototype.addNodeAttributes = function (node, d, data) {
   node.attr('data-empty', String(!d.data.children || !d.data.children.length))
   node.attr('data-recurring', data.recurring ? 'true' : null)
   node.classed('proposed', data.proposed)
+  node.classed('completed', data.status === 'completed' || data.progress >= 1)
 }
 
 RPM.getLinks = function (node) {
@@ -875,6 +881,10 @@ RPM.prototype.updateText = function (node, d, data, isDraft) {
   if (data.type === 'project') {
     textData.push({text: Math.round(d.descendantsProgress * 100) + '%'})
   }
+
+  // if (data.status === 'completed') {
+  //   textData.push({text: 'completed'})
+  // }
   // } else {
   //   textData.push({text: Math.round(data.progress * 100) + '%'})
   // }
@@ -973,7 +983,7 @@ RPM.prototype.updateText = function (node, d, data, isDraft) {
 }
 
 RPM.prototype.updateTextPosition = function (node, data, angle) {
-  var text, radius, coord, box, offsetScale, centerOffset, cornerCompensation, nodeBox
+  var text, radius, coord, box, offsetScale, nodeCenter, cornerCompensation, nodeBox
 
   // th = this
   node.node()._textAngle = angle
@@ -982,21 +992,35 @@ RPM.prototype.updateTextPosition = function (node, data, angle) {
   nodeBox = node.select('.item-container').node().getBBox()
   // radius = th.itemOptions[data.type].textRadius
   radius = nodeBox.width / 2 + 5
-  // centerOffset = th.itemOptions[data.type].textOffset
-  centerOffset = {x: nodeBox.x + nodeBox.width / 2, y: nodeBox.y + nodeBox.height / 2}
+  // nodeCenter = th.itemOptions[data.type].textOffset
+  nodeCenter = {x: nodeBox.x + nodeBox.width / 2, y: nodeBox.y + nodeBox.height / 2}
   coord = RPM.rotZ(0, -radius, angle)
 
   offsetScale = {x: coord.x / radius, y: coord.y / radius}
+  // offsetScale = {
+  //   x: coord.x > 0 ? 1 : -1,
+  //   y: coord.y > 0 ? 1 : -1
+  // }
   coord.y *= nodeBox.height / nodeBox.width
   cornerCompensation = {
-    x: Math.sin((1 - offsetScale.x) * Math.PI) * radius * 0.3,
-    y: Math.sin((1 - offsetScale.y) * Math.PI) * radius * 0.3
+    x: Math.sin((1 - offsetScale.x) * Math.PI) * (box.width / 2 * 0.3),
+    y: Math.sin((1 - offsetScale.y) * Math.PI) * (box.height / 2 * 0.3)
   }
 
+  // cornerCompensation.x = 0
+  // cornerCompensation.y = 0
+
   text.attr('transform', 'translate(' + [
-    coord.x + box.width / 2 * offsetScale.x - box.x - box.width / 2 + centerOffset.x + cornerCompensation.x,
-    coord.y + box.height / 2 * offsetScale.y - box.y - box.height / 2 + centerOffset.y + cornerCompensation.y
+    coord.x + box.width / 2 * offsetScale.x - box.x - box.width / 2 + nodeCenter.x + cornerCompensation.x,
+    coord.y + box.height / 2 * offsetScale.y - box.y - box.height / 2 + nodeCenter.y + cornerCompensation.y
   ] + ')')
+
+  // text.attr('transform', 'translate(' + [
+  //   coord.x,
+  //   coord.y
+  // ] + ')')
+
+  // text.append('circle').attr('r', 3)
 }
 
 RPM.prototype.updateNode = function (node, data, t, d) {
@@ -1275,9 +1299,9 @@ RPM.prototype.updateFlower = function () {
 
     if (d.children && d.children.length) {
       d.proposedChildren = d.children.filter((val) => { return val.data.proposed })
-      d.completedChildren = d.children.filter((val) => { return val.data.completed })
+      d.completedChildren = d.children.filter((val) => { return (val.data.status === 'completed' || val.data.progress >= 1) && !val.data.recurring })
       d.proposedAngle = {min: Infinity, max: -Infinity}
-      d.children = d.children.filter((val) => { return !val.data.proposed && (!val.data.completed || th._showCompleted) })
+      d.children = d.children.filter((val) => { return !val.data.proposed && (!((val.data.status === 'completed' || val.data.progress >= 1) && !val.data.recurring) || th._showCompleted) })
 
       if (!th._hideProposed) {
         d.children = d.children.concat(d.proposedChildren)

@@ -241,7 +241,9 @@ export default {
     /* color: #215fdb; */
     font-weight: 600;
     margin-bottom: 20px;
+    overflow: hidden;
   }
+
 
   .comments-button .count-wrapper {
     display: inline-block;
@@ -259,6 +261,10 @@ export default {
     left: 0;
     top: 0;
     opacity: 0; */
+  }
+
+  .comments-button:hover {
+    box-shadow: inset 0 100px 0 rgba(0, 0, 0, 0.02);
   }
 
   .comments-button.active {
