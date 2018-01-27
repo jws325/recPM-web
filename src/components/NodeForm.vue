@@ -118,6 +118,7 @@ export default {
       showWorkers: false,
       onDueDate: false,
       onDependsOn: false,
+      initialStatus: null,
       peopleMapping: {
         task: 'workers',
         project: 'managers'
@@ -172,6 +173,7 @@ export default {
     },
     progressChanged (val) {
       this.datum.progress = val
+      this.datum.status = val === 1 ? 'completed' : this.initialStatus
     },
     completeChanged (e) {
       this.$emit('completeChanged', e)
@@ -181,6 +183,7 @@ export default {
       this.$set(this.datum, '_dependencies', this.datum.dependencies || [])
       this.isRecurring = this.datum.recurring
       this.onDependsOn = !!(this.datum.dependencies && this.datum.dependencies.length)
+      this.initialStatus = this.datum.initialStatus
     }
   },
   watch: {
@@ -206,6 +209,9 @@ export default {
     },
     isRecurring () {
       this.$set(this.datum, 'recurring', this.isRecurring)
+    },
+    recurringCompleted (e) {
+      this.$emit('completeChanged', e)
     }
   },
   mounted: function () {

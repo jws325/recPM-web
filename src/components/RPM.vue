@@ -79,7 +79,7 @@
             </div>
           </transition>
           <div class="view-type">
-			<h3>Select User Role (For Demo)</h3>
+            <h3>Select User Role (For Demo)</h3>
             <label><input type="radio" name="view-type" value="owner" v-model="viewType"> Project Owner</label><br>
             <label><input type="radio" name="view-type" value="voter" v-model="viewType"> Voter</label>
           </div>
@@ -673,25 +673,16 @@ export default {
 
   .info-buttons-wrapper .edit-button {
     border-bottom: 2px solid #abd8ff;
+    color: #3897da;
   }
 
   .info-buttons-wrapper .remove-button {
     border-bottom: 2px solid #ffa8a3;
+    color: #e15e5e;
   }
 
   .info-buttons-wrapper .cancel-button {
     border-bottom: 2px solid #abd8ff;
-  }
-
-  .buttons-zone:hover .edit-button, .no-fade .edit-button {
-    color: #3897da;
-  }
-
-  .buttons-zone:hover .remove-button, .no-fade .remove-button {
-    color: #e15e5e;
-  }
-
-  .buttons-zone:hover .cancel-button, .no-fade .cancel-button {
     color: #3897da;
   }
 

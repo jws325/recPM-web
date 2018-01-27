@@ -131,21 +131,18 @@ export default {
 }
 
 .progress-slider .track {
-  transition-property: background-color, opacity;
+  transition-property: opacity;
   transition-duration: 0.2s;
   transition-timing-function: ease;
 }
 
 .progress-slider .track span {
-  transition-property: background-color, opacity;
-  transition-duration: 0.4s;
-  transition-timing-function: ease;
 }
 
 .progress-slider .pointer, .progress-slider .track div {
-  transition-property: top, height, background-color, opacity;
+  /* transition-property: top, height, background-color, opacity;
   transition-duration: 0.2s;
-  transition-timing-function: ease;
+  transition-timing-function: ease; */
 }
 
 .progress-slider .pointer {
