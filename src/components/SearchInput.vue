@@ -1,6 +1,6 @@
 <template>
   <div class="search-input-wrapper" v-bind:class="{'hold':(hold && !focused && !searchString)}">
-      <input type="search" v-on:focus="focused=true" v-on:blur="focused=false" v-model="searchString">
+      <input type="search" autocorrect="off" autocapitalize="off" spellcheck="false" v-on:focus="focused=true" v-on:blur="focused=false" v-model="searchString">
       <i class="search-icon"></i>
   </div>
 </template>
