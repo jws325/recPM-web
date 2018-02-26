@@ -1,88 +1,86 @@
 <template>
   <div class="rpm-main">
-    <div class="rpm-main">
-      <div class="row">
-        <header class="cell header-cell">
-          <main-header
-            v-bind:d="headerData"
-            v-on:add-item="addItem"
-            v-bind:view-type="viewType"
-            v-on:search="search"
-            v-bind:search-string="searchString">
-          </main-header>
-        </header>
-      </div>
-      <div class="row">
-        <div class="body cell" v-bind:class="{comments: showComments}">
-          <rpm-diagram
-            v-bind:nodes-data="rpmData.nodes"
-            v-on:added="applyDatum"
-            v-on:removed="applyDatum"
-            v-on:draw="applyDatum"
-            v-on:select="applyDatum"
-            v-on:changedParental="applyParentalDatum"
-            v-bind:search="searchString"
-            v-bind:show-proposed="showProposed"
-            v-bind:show-completed="showCompleted"
-            v-bind:view-type="viewType">
-          </rpm-diagram>
-          <div class="diagram-options">
-            <label class="proposed-switcher"><input type="checkbox" v-model="showProposed"> <span>Show Proposed</span>
-              <transition name="fade">
-                <span class="faded-text" v-if="showProposed && !(parentalDatum.proposedChildren && parentalDatum.proposedChildren.length)">(none)</span>
+    <div class="row header-row" v-if="panels.header">
+      <header class="cell header-cell">
+        <main-header
+          v-bind:d="headerData"
+          v-on:add-item="addItem"
+          v-bind:view-type="viewType"
+          v-on:search="search"
+          v-bind:search-string="searchString">
+        </main-header>
+      </header>
+    </div>
+    <div class="row">
+      <div class="body cell" v-bind:class="{comments: showComments}">
+        <rpm-diagram
+          v-bind:nodes-data="rpmData.nodes"
+          v-on:added="applyDatum"
+          v-on:removed="applyDatum"
+          v-on:draw="applyDatum"
+          v-on:select="applyDatum"
+          v-on:changedParental="applyParentalDatum"
+          v-bind:search="searchString"
+          v-bind:show-proposed="showProposed"
+          v-bind:show-completed="showCompleted"
+          v-bind:view-type="viewType">
+        </rpm-diagram>
+        <div class="diagram-options" v-if="panels.options">
+          <label class="proposed-switcher"><input type="checkbox" v-model="showProposed"> <span>Show Proposed</span>
+            <transition name="fade">
+              <span class="faded-text" v-if="showProposed && !(parentalDatum.proposedChildren && parentalDatum.proposedChildren.length)">(none)</span>
+            </transition>
+          </label><br>
+          <label class="completed-switcher"><input type="checkbox" v-model="showCompleted"> <span>Show Completed</span>
+            <transition name="fade">
+              <span class="faded-text" v-if="showCompleted && !(parentalDatum.completedChildren && parentalDatum.completedChildren.length)">(none)</span>
+            </transition>
+          </label>
+        </div>
+        <transition name="fade">
+          <div class="sidebar" v-if="!searchString && panels.sidebar">
+            <transition name="slide-h">
+              <node-info
+                v-if="!datum.empty && (!datum.data.draft && datum.data.name)"
+                v-bind:datum="datum"
+                v-bind:people="rpmData.people"
+                v-bind:neighbors="datum.parent ? datum.parent.data.children : []"
+                v-bind:show-comments="showComments"
+                v-bind:view-type="viewType"
+                v-bind:disqusname="disqusName"
+                v-on:comments-click="commentsHandler"
+                v-on:edit-click="editNode"
+                v-on:remove-click="removeNode"
+                v-bind:disqus-api-key="disqusApiKey">
+              </node-info>
+              <new-item
+                v-if="datum.data.draft"
+                v-on:save="save"
+                v-on:remove="removeNode"
+                v-on:cancel="cancelEdit"
+                v-on:completeChanged="completeChanged"
+                v-bind:datum="datum.data.draft"
+                v-bind:people="rpmData.people"
+                v-bind:neighbors="datum.parent ? datum.parent.data.children : []">
+              </new-item>
+            </transition>
+            <div class="comments-wrapper">
+              <transition name="fade-long">
+                <vue-comments
+                  v-if="showComments"
+                  v-bind:shortname="disqusName"
+                  v-bind:identifier="datum.id"
+                  v-bind:api-key="disqusApiKey"
+                  v-bind:view-type="viewType">
+                </vue-comments>
               </transition>
-            </label><br>
-            <label class="completed-switcher"><input type="checkbox" v-model="showCompleted"> <span>Show Completed</span>
-              <transition name="fade">
-                <span class="faded-text" v-if="showCompleted && !(parentalDatum.completedChildren && parentalDatum.completedChildren.length)">(none)</span>
-              </transition>
-            </label>
-          </div>
-          <transition name="fade">
-            <div class="sidebar" v-if="!searchString">
-              <transition name="slide-h">
-                <node-info
-                  v-if="!datum.empty && (!datum.data.draft && datum.data.name)"
-                  v-bind:datum="datum"
-                  v-bind:people="rpmData.people"
-                  v-bind:neighbors="datum.parent ? datum.parent.data.children : []"
-                  v-bind:show-comments="showComments"
-                  v-bind:view-type="viewType"
-                  v-bind:disqusname="disqusName"
-                  v-on:comments-click="commentsHandler"
-                  v-on:edit-click="editNode"
-                  v-on:remove-click="removeNode"
-                  v-bind:disqus-api-key="disqusApiKey">
-                </node-info>
-                <new-item
-                  v-if="datum.data.draft"
-                  v-on:save="save"
-                  v-on:remove="removeNode"
-                  v-on:cancel="cancelEdit"
-                  v-on:completeChanged="completeChanged"
-                  v-bind:datum="datum.data.draft"
-                  v-bind:people="rpmData.people"
-                  v-bind:neighbors="datum.parent ? datum.parent.data.children : []">
-                </new-item>
-              </transition>
-              <div class="comments-wrapper">
-                <transition name="fade-long">
-                  <vue-comments
-                    v-if="showComments"
-                    v-bind:shortname="disqusName"
-                    v-bind:identifier="datum.id"
-                    v-bind:api-key="disqusApiKey"
-                    v-bind:view-type="viewType">
-                  </vue-comments>
-                </transition>
-              </div>
             </div>
-          </transition>
-          <div class="view-type">
-            <h3>Select User Role (For Demo)</h3>
-            <label><input type="radio" name="view-type" value="owner" v-model="viewType"> Project Owner</label><br>
-            <label><input type="radio" name="view-type" value="voter" v-model="viewType"> Voter</label>
           </div>
+        </transition>
+        <div class="view-type" v-if="panels.viewType">
+          <h3>Select User Role (For Demo)</h3>
+          <label><input type="radio" name="view-type" value="owner" v-model="viewType"> Project Owner</label><br>
+          <label><input type="radio" name="view-type" value="voter" v-model="viewType"> Voter</label>
         </div>
       </div>
     </div>
@@ -132,7 +130,14 @@ export default {
       showComments: false,
       showProposed: true,
       showCompleted: false,
-      disqusApiKey: 'T7XbPlHEDeyXie9yImwHqxqLgUS0JZiWqFC0NHp2KMZHPcBvRj6rVdjmjnQRfBel'
+      disqusApiKey: 'T7XbPlHEDeyXie9yImwHqxqLgUS0JZiWqFC0NHp2KMZHPcBvRj6rVdjmjnQRfBel',
+      hidePanels: false,
+      panels: {
+        sidebar: true,
+        header: true,
+        options: true,
+        viewType: true
+      }
     }
   },
   methods: {
@@ -235,6 +240,15 @@ export default {
   },
   mounted: function () {
     this.loadData('static/data.json')
+
+    if (this.$route.query.panels === 'false') {
+      this.panels.header = false
+      this.panels.options = false
+      this.panels.sidebar = false
+      this.panels.viewType = false
+    }
+    // this.hidePanels = this.$route.query.hidePanels === 'true'
+    // console.log(this.$route.params, this.$route.query)
   }
 }
 </script>
@@ -247,7 +261,7 @@ export default {
   overflow: hidden;
 }
 
- .rpm-diagram {
+.rpm-diagram {
   height: 100%;
   position: absolute;
   left: 30px;
@@ -265,6 +279,7 @@ export default {
   top: 0;
   bottom: 0;
   right: 0;
+  background: #fff;
 }
 
 .comments .sidebar {
@@ -361,6 +376,10 @@ export default {
 </style>
 
 <style>
+  /* .hidden-panels .header-row, .hidden-panels .sidebar, .hidden-panels .view-type, .hidden-panels .diagram-options {
+    display: none !important;
+  } */
+
   .faded-text {
     color: #a6a4a4;
   }
