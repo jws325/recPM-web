@@ -6,7 +6,7 @@
       "workers": [
           {"id": "w1", "name": "James Shaughnessy", "portrait": "js.jpg"},
           {"id": "w2", "name": "Dmitry Malyovaniy", "portrait": "dm.png"},
-          {"id": "w3", "name": "Matthew Di Ferrante", "portrait": "md.png"},
+          {"id": "w3", "name": "Adil Haritah", "portrait": "ah.jpg"},
           {"id": "w4", "name": "Junard Quijano", "portrait": "jq.jpg"}		  
       ]
   },
