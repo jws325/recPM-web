@@ -521,9 +521,10 @@ RPM.prototype.drawNode = function (node, eventType) {
         .transition(tAdd)
         .tween('item', function () {
           return function (t) {
-            let grow
+            let grow, iGrow
             grow = d.id === th.activeId ? 2 : 1
-            th.updateNode(el, data, d3.interpolateNumber(el.node()._t, grow)(t), d)
+            iGrow = d3.interpolateNumber(el.node()._t, grow)(t)
+            th.updateNode(el, data, iGrow, d, iGrow - 1)
             th.updateTextPosition(el, data, d3.interpolateNumber(el.node()._textAngle, (d.id === th.activeId) ? getClosestAngle(el.node()._textAngle) : d.angle)(t))
           }
         })
@@ -812,6 +813,7 @@ RPM.prototype.addNodeAttributes = function (node, d, data) {
   node.attr('data-importance', String(data.importance))
   node.attr('data-empty', String(!d.data.children || !d.data.children.length))
   node.attr('data-recurring', data.recurring ? 'true' : null)
+  node.attr('data-active', data.id === this.activeId ? 'true' : null)
   node.classed('proposed', data.proposed)
   node.classed('completed', data.status === 'completed' || data.progress >= 1)
 }
@@ -1023,7 +1025,7 @@ RPM.prototype.updateTextPosition = function (node, data, angle) {
   // text.append('circle').attr('r', 3)
 }
 
-RPM.prototype.updateNode = function (node, data, t, d) {
+RPM.prototype.updateNode = function (node, data, t, d, bottomT) {
   var th, item
 
   th = this
@@ -1044,9 +1046,9 @@ RPM.prototype.updateNode = function (node, data, t, d) {
   if (node.node()._t !== t) {
     node.node()._t = t
     if (data.type === 'project') {
-      th.updateProjectItem(node, data, t)
+      th.updateProjectItem(node, data, t, bottomT)
     } else if (data.type === 'task') {
-      th.updateTaskItem(node, data, t)
+      th.updateTaskItem(node, data, t, bottomT)
     }
   }
 }
@@ -1102,6 +1104,7 @@ RPM.prototype.createTaskItem = function (target, data) {
   g = target.append('g').attr('class', 'item task-item')
   g.attr('data-recurring', data.recurring ? 'true' : null)
   g.append('path').attr('class', 'task-body')
+  g.append('path').attr('class', 'task-progress')
   g.append('ellipse').attr('class', 'task-cap').attr('stroke-width', 0)
   iconG = g.append('g').attr('class', 'icon-g').attr('transform', 'scale(1, ' + RPM.yScale + ')')
   iconG.append('path').attr('class', 'icon task-check-icon')
@@ -1112,7 +1115,7 @@ RPM.prototype.createTaskItem = function (target, data) {
 }
 
 RPM.prototype.updateTaskItem = function (node, data, t) {
-  var radius, height, th, checkIcon, recurringIcon, recurringIconScale, checkIconScale, g, endPoint, arrowSize, recurringEndAngle
+  var radius, height, th, checkIcon, recurringIcon, recurringIconScale, checkIconScale, g, endPoint, arrowSize, recurringEndAngle, progressD, progressRotation
 
   th = this
   radius = th.itemOptions.task.length / 2
@@ -1121,11 +1124,35 @@ RPM.prototype.updateTaskItem = function (node, data, t) {
   recurringIconScale = 0.5
   arrowSize = [4, 4]
   recurringEndAngle = Math.PI * 1.65
+  progressD = []
 
   node.select('.task-cap')
     .attr('rx', radius)
     .attr('ry', radius * RPM.yScale)
     .attr('cy', -height * t)
+
+  progressRotation = RPM.rotZ(radius, 0, Math.min(Math.PI, data.progress * Math.PI * 2))
+
+  progressD = ['M', 0, -height * t,
+    'L', radius, -height * t,
+    'L', radius, 0,
+    'A', radius, radius * RPM.yScale,
+    0, 0, 1,
+    progressRotation.x, progressRotation.y * RPM.yScale,
+    'L', progressRotation.x, progressRotation.y * RPM.yScale - height * t]
+
+  if (data.progress > 0.5) {
+    progressRotation = RPM.rotZ(radius, 0, data.progress * Math.PI * 2)
+    progressD.push(
+      'A', radius, radius * RPM.yScale,
+      0, 0, 1,
+      progressRotation.x, progressRotation.y * RPM.yScale - height * t
+    )
+  }
+
+  progressD.push('z')
+
+  node.select('.task-progress').attr('d', progressD.join(' '))
 
   node.select('.task-body')
     .attr('d', ['M', -radius, -height * t,
@@ -1133,7 +1160,18 @@ RPM.prototype.updateTaskItem = function (node, data, t) {
       'A', radius, radius * RPM.yScale,
       0, 1, 0,
       radius, 0,
-      'L', radius, -height * t, 'z'].join(' '))
+      'L', radius, -height * t,
+      'A', radius, radius * RPM.yScale,
+      0, 1, 1,
+      -radius, -height * t,
+      'M', -radius, 0,
+      'A', radius, Math.max(0.1, radius * RPM.yScale - (height * t) / 2),
+      0, 1, 0,
+      radius, 0,
+      'A', radius, radius * RPM.yScale,
+      0, 1, 0,
+      -radius, 0,
+      'z'].join(' '))
 
   node.select('.icon-g').attr('transform', 'translate(' + [0, -height * t] + ') scale(1, ' + RPM.yScale + ')')
 
@@ -1166,16 +1204,17 @@ RPM.prototype.updateTaskItem = function (node, data, t) {
     // .attr('transform', 'rotate(' + (recurringEndAngle / (Math.PI / 180)) + ')')
 }
 
-RPM.prototype.updateProjectItem = function (node, data, t) {
+RPM.prototype.updateProjectItem = function (node, data, t, bottomT) {
   var len, width, value, th
 
   th = this
   len = th.itemOptions.project.length
   width = len * 1.732050808
   value = 0
+  bottomT = (typeof bottomT === 'undefined') ? 0 : bottomT
 
-  node.select('.project-progress').attr('d', getD(0, len * value * t))
-  node.select('.project-fill').attr('d', getD(len * value * t, len * t - (len * value * t)))
+  node.select('.project-progress').attr('d', getD(bottomT * len, len * value * t))
+  node.select('.project-fill').attr('d', getD(bottomT * len + len * value * t, len * t - (bottomT * len + len * value * t)))
   node.select('.project-cap').attr('d', getCapD(len * t)).attr('class', 'project-cap')
   node.select('.project-center-line')
     .attr('x1', 0)

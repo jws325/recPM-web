@@ -205,8 +205,14 @@
 .rpm-svg .node .project-cap,
 .rpm-svg .node .project-center-line,
 .rpm-svg .node .task-cap, 
+.rpm-svg .node .task-progress, 
 .rpm-svg .node .task-body {
   transition: fill 0.3s, stroke 0.3s, stroke-width 0.3s, stroke-dashoffset 0.8s ease;
+}
+
+.rpm-svg .node .task-cap {
+  fill-opacity: 0;
+  /* opacity: 0; */
 }
 
 .rpm-svg .node .node-text path, .rpm-svg .node .text-line text {
@@ -215,7 +221,7 @@
 
 .rpm-svg .node .shadow,
 .rpm-svg .node .reflection {
-  transition: fill 0.3s;
+  transition: fill 0.3s, opacity 0.3s;
 }
 
 .rpm-svg .node.proposed .item > path,
@@ -318,7 +324,7 @@
 }
 
 /* body */
-.rpm-svg .task-node .task-body, .rpm-svg .task-node .task-cap {
+.rpm-svg .task-node .task-body, .rpm-svg .task-node .task-cap, .rpm-svg .task-node .task-progress {
     stroke-width: 0;
 }
 
@@ -347,21 +353,26 @@
 }
 
 .rpm-svg .task-node[data-importance="low"] .icon, .rpm-svg .task-node[data-importance="low"] .icon path {
-    stroke: #18b067;
+    stroke: #9ce4c2;
 }
 
 .rpm-svg .task-node[data-importance="low"] .task-cap {
-    fill: #22d17d;
-    stroke: #18b067;
+    fill: #89f6c2;
+    stroke: #9ce4c2;
+    fill-opacity: 0.6;
 }
 
 .rpm-svg .task-node[data-importance="low"] .task-body {
-    fill: #18b067;
-    stroke: #18b067;
+    fill: #50da98;
+    stroke: #9ce4c2;
+}
+
+.rpm-svg .task-node[data-importance="low"] .task-progress {
+  fill: #06a459;
 }
 
 .rpm-svg .task-node[data-importance="low"] .node-text path {
-  fill: #18b067;
+  fill: #06a459;
 }
 
 .rpm-svg .task-node[data-importance="normal"] .icon, .rpm-svg .task-node[data-importance="normal"] .icon path {
@@ -369,13 +380,18 @@
 }
 
 .rpm-svg .task-node[data-importance="normal"] .task-cap {
-    fill: #44baf9;
+    fill: #a1deff;
     stroke: #239bdb;
+    fill-opacity: 0.6;
 }
 
 .rpm-svg .task-node[data-importance="normal"] .task-body {
-    fill: #239bdb;
+    fill: #62c7fd;
     stroke: #239bdb;
+}
+
+.rpm-svg .task-node[data-importance="normal"] .task-progress {
+    fill: #0d88ca;
 }
 
 .rpm-svg .task-node[data-importance="normal"] .node-text path {
@@ -387,12 +403,18 @@
 }
 
 .rpm-svg .task-node[data-importance="high"] .task-cap {
-    fill: #fbd04f;
+    fill: #fce0a0;
     stroke: #e7b43d;
+    fill-opacity: 0.6;
 }
 
 .rpm-svg .task-node[data-importance="high"] .task-body {
-    fill: #e7b43d;
+    fill: #f7d075;
+    stroke: #e7b43d;
+}
+
+.rpm-svg .task-node[data-importance="high"] .task-progress {
+    fill: #d9a01c;
     stroke: #e7b43d;
 }
 
@@ -405,11 +427,17 @@
 }
 
 .rpm-svg .task-node[data-importance="critical"] .task-cap {
-    fill: #fa7a4d;
+    fill: #fedbce;
     stroke: #f15018;
+    fill-opacity: 0.6;
 }
 
 .rpm-svg .task-node[data-importance="critical"] .task-body {
+    fill: #f9af95;
+    stroke: #f15018;
+}
+
+.rpm-svg .task-node[data-importance="critical"] .task-progress {
     fill: #f15018;
     stroke: #f15018;
 }
@@ -571,7 +599,15 @@
 .rpm-svg .node .shadow {
   fill: black;
   opacity: 0;
-  /* transform: scale(1.5); */
+  transform: scale(1.2);
+}
+
+.rpm-svg .project-node[data-active="true"] .reflection {
+  opacity: 0;
+}
+
+.rpm-svg .project-node[data-active="true"] .shadow {
+  opacity: 0.1;
 }
 
 .rpm-svg .node .reflection {
@@ -604,7 +640,7 @@
 }
 
 .rpm-svg .task-node .reflection {
-  opacity: 0.5;
+  opacity: 0.2;
   transform: translate(0, 2px);
 }
 
