@@ -13,11 +13,10 @@
           <label class="header-fade">Upvotes:</label>
           <strong>{{d.projectUpvotes}}</strong>
           <span v-if="viewType === 'voter'">
-            <span class="vote-switcher" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()">
-                <span class="upvote-state">Upvote</span>
-                <div class="voted-state">(Voted)</div>
-                <div class="remove-vote">Remove Vote</div>
-            </span>
+            <span class="upvotes" v-if="upvotes > 0">+ {{upvotes}}</span>
+            <div class="voting">
+              <div v-on:click="changeVote(-1)">−</div><div v-on:click="changeVote(1)">+</div>
+            </div>
             <!-- <div class="vote-icon" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()"></div> -->
             <!-- <div class="vote-button" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()">Upvote</div> -->
           </span>
@@ -36,7 +35,7 @@
         <search-input v-bind:hold="hold" v-on:search="search"></search-input><br>
         <div v-if="viewType === 'voter'">
           <label class="header-fade">My Address: </label><strong v-bind:title="d.voterAddress" v-on:click="shortVoterAddress = !shortVoterAddress" class="address">{{d.voterAddress | shorten(shortVoterAddress ? 4 : Infinity, 3) }}</strong><br>
-          <label class="header-fade">Votes Remaining: </label><strong>{{d.votesRemaining}}</strong>
+          <label class="header-fade">Votes Remaining: </label><strong>{{d.votesRemaining - upvotes}}</strong>
         </div>
       </div>
     </div>
@@ -57,7 +56,7 @@ export default {
       hold: true,
       shortProjectAddress: true,
       shortVoterAddress: true,
-      projectIsVoted: false
+      upvotes: 0
     }
   },
   methods: {
@@ -65,11 +64,8 @@ export default {
     //   this.searchString = val
       this.$emit('search', val)
     },
-    toggleVote () {
-      this.projectIsVoted = !this.projectIsVoted
-      this.d.projectUpvotes += this.projectIsVoted ? 1 : -1
-      this.d.votesRemaining += this.projectIsVoted ? -1 : 1
-      // alert('Voting is not yet implemented.')
+    changeVote (value) {
+      this.upvotes = Math.min(this.d.votesRemaining, Math.max(0, this.upvotes + value))
     }
   },
   components: {SearchInput}
@@ -102,6 +98,49 @@ export default {
 
   .header:hover  .header-fade {
     opacity: 1;
+  }
+
+  .voting {
+    display: inline-block;
+    position: relative;
+    line-height: 0;
+    margin: 0 3px;
+  }
+
+  .voting:before {
+    content: "";
+    left: 50%;
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    border-right: 1px solid #e9e9e9;
+  }
+
+  .voting > * {
+    text-align: center;
+    line-height: 16px;
+    border: 1px solid #e9e9e9;
+    display: inline-block;
+    width: 30px;
+    box-sizing: border-box;
+    cursor: default;
+  }
+
+  .voting > *:first-child {
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+    border-right: 0;
+  }
+
+  .voting > *:last-child {
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+    border-left: 0;
+  }
+
+  .upvotes {
+    color: #fa8037;
+    font-weight: 600;
   }
 
   .main-header  {

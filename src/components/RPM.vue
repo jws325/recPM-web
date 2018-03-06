@@ -27,14 +27,10 @@
         </rpm-diagram>
         <div class="diagram-options" v-if="panels.options">
           <label class="proposed-switcher"><input type="checkbox" v-model="showProposed"> <span>Show Proposed</span>
-            <transition name="fade">
-              <span class="faded-text" v-if="showProposed && !(parentalDatum.proposedChildren && parentalDatum.proposedChildren.length)">(none)</span>
-            </transition>
+          <span class="faded-text">({{parentalDatum.proposedChildren && parentalDatum.proposedChildren.length ? parentalDatum.proposedChildren.length : 'none'}})</span>
           </label><br>
           <label class="completed-switcher"><input type="checkbox" v-model="showCompleted"> <span>Show Completed</span>
-            <transition name="fade">
-              <span class="faded-text" v-if="showCompleted && !(parentalDatum.completedChildren && parentalDatum.completedChildren.length)">(none)</span>
-            </transition>
+          <span class="faded-text">({{parentalDatum.completedChildren && parentalDatum.completedChildren.length ? parentalDatum.completedChildren.length : 'none'}})</span>
           </label>
         </div>
         <transition name="fade">
