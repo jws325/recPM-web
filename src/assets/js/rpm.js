@@ -80,6 +80,8 @@ export default function RPM (target, handler) {
     th.zoomG.attr('transform', d3.event.transform)
   })
 
+  th.zoom.scaleExtent([0.2, 3])
+
   th.container = d3.select(target).append('div').attr('class', 'rpm-container').style('position', 'relative')
   th.body = th.container.append('div').attr('class', 'rpm-body')
   th.breadcrumbContainer = th.body.append('div').attr('class', 'breadcrumb-container')
@@ -1043,14 +1045,14 @@ RPM.prototype.updateNode = function (node, data, t, d, bottomT) {
 
   node.node()._data = data
 
-  if (node.node()._t !== t) {
-    node.node()._t = t
-    if (data.type === 'project') {
-      th.updateProjectItem(node, data, t, bottomT)
-    } else if (data.type === 'task') {
-      th.updateTaskItem(node, data, t, bottomT)
-    }
+  // if (node.node()._t !== t) {
+  node.node()._t = t
+  if (data.type === 'project') {
+    th.updateProjectItem(node, data, t, bottomT)
+  } else if (data.type === 'task') {
+    th.updateTaskItem(node, data, t, bottomT)
   }
+  // }
 }
 
 RPM.prototype.createItem = function (target, data) {
@@ -1127,26 +1129,26 @@ RPM.prototype.updateTaskItem = function (node, data, t) {
   progressD = []
 
   node.select('.task-cap')
-    .attr('rx', radius)
+    .attr('rx', radius * RPM.xScale)
     .attr('ry', radius * RPM.yScale)
     .attr('cy', -height * t)
 
   progressRotation = RPM.rotZ(radius, 0, Math.min(Math.PI, data.progress * Math.PI * 2))
 
   progressD = ['M', 0, -height * t,
-    'L', radius, -height * t,
-    'L', radius, 0,
-    'A', radius, radius * RPM.yScale,
+    'L', radius * RPM.xScale, -height * t,
+    'L', radius * RPM.xScale, 0,
+    'A', radius * RPM.xScale, radius * RPM.yScale,
     0, 0, 1,
-    progressRotation.x, progressRotation.y * RPM.yScale,
-    'L', progressRotation.x, progressRotation.y * RPM.yScale - height * t]
+    progressRotation.x * RPM.xScale, progressRotation.y * RPM.yScale,
+    'L', progressRotation.x * RPM.xScale, progressRotation.y * RPM.yScale - height * t]
 
   if (data.progress > 0.5) {
     progressRotation = RPM.rotZ(radius, 0, data.progress * Math.PI * 2)
     progressD.push(
-      'A', radius, radius * RPM.yScale,
+      'A', radius * RPM.xScale, radius * RPM.yScale,
       0, 0, 1,
-      progressRotation.x, progressRotation.y * RPM.yScale - height * t
+      progressRotation.x * RPM.xScale, progressRotation.y * RPM.yScale - height * t
     )
   }
 
@@ -1155,22 +1157,22 @@ RPM.prototype.updateTaskItem = function (node, data, t) {
   node.select('.task-progress').attr('d', progressD.join(' '))
 
   node.select('.task-body')
-    .attr('d', ['M', -radius, -height * t,
-      'L', -radius, 0,
-      'A', radius, radius * RPM.yScale,
+    .attr('d', ['M', -radius * RPM.xScale, -height * t,
+      'L', -radius * RPM.xScale, 0,
+      'A', radius * RPM.xScale, radius * RPM.yScale,
       0, 1, 0,
-      radius, 0,
-      'L', radius, -height * t,
-      'A', radius, radius * RPM.yScale,
+      radius * RPM.xScale, 0,
+      'L', radius * RPM.xScale, -height * t,
+      'A', radius * RPM.xScale, radius * RPM.yScale,
       0, 1, 1,
-      -radius, -height * t,
-      'M', -radius, 0,
-      'A', radius, Math.max(0.1, radius * RPM.yScale - (height * t) / 2),
+      -radius * RPM.xScale, -height * t,
+      'M', -radius * RPM.xScale, 0,
+      'A', radius * RPM.xScale, Math.max(0.1, radius * RPM.yScale - (height * t) / 2),
       0, 1, 0,
-      radius, 0,
-      'A', radius, radius * RPM.yScale,
+      radius * RPM.xScale, 0,
+      'A', radius * RPM.xScale, radius * RPM.yScale,
       0, 1, 0,
-      -radius, 0,
+      -radius * RPM.xScale, 0,
       'z'].join(' '))
 
   node.select('.icon-g').attr('transform', 'translate(' + [0, -height * t] + ') scale(1, ' + RPM.yScale + ')')
@@ -1180,7 +1182,7 @@ RPM.prototype.updateTaskItem = function (node, data, t) {
   endPoint = RPM.rotZ(0, -radius, recurringEndAngle)
 
   recurringIcon = g.select('path')
-  .attr('d', ['M', 0, (-radius * recurringIconScale),
+  .attr('d', ['M', 0, (-radius * RPM.xScale * recurringIconScale),
     'A', radius * recurringIconScale, radius * recurringIconScale,
     0, 1, 1,
     endPoint.x * recurringIconScale, endPoint.y * recurringIconScale].join(' '))
@@ -1209,7 +1211,7 @@ RPM.prototype.updateProjectItem = function (node, data, t, bottomT) {
 
   th = this
   len = th.itemOptions.project.length
-  width = len * 1.732050808
+  width = len * RPM.diagonalScale * RPM.xScale
   value = 0
   bottomT = (typeof bottomT === 'undefined') ? 0 : bottomT
 
@@ -1440,6 +1442,8 @@ RPM.prototype.getNodeById = function (id, nodes) {
 }
 
 RPM.yScale = 0.7071067812
+RPM.xScale = 1.224744871
+RPM.diagonalScale = 1.414213562
 
 RPM.rotZ = function (x, y, angle) {
   var cos = Math.cos(angle)
