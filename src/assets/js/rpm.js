@@ -80,7 +80,7 @@ export default function RPM (target, handler) {
     th.zoomG.attr('transform', d3.event.transform)
   })
 
-  th.zoom.scaleExtent([0.2, 3])
+  th.zoom.scaleExtent([0.5, 1.8])
 
   th.container = d3.select(target).append('div').attr('class', 'rpm-container').style('position', 'relative')
   th.body = th.container.append('div').attr('class', 'rpm-body')
