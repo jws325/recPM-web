@@ -14,28 +14,29 @@ export default function RPM (target, handler) {
   th._flowerById = {}
   th._nodesById = {}
   th._glowById = {}
-  th._levelRadius = 150
+  th._levelRadius = 170
   th._proposedRadius = 270
   th._proposedPlaceRadius = 1.5
   th._proposedTextRadius = th._proposedRadius
   th._offset = [0, 0]
   th._withProposed = false
   th._hideProposed = false
+  th._drawedFocus = null
   th.focusId = null
 
   th.itemOptions = {
     task: {
-      length: 34,
-      shadowRadius: 17,
-      height: 5,
+      length: 32,
+      shadowRadius: 19,
+      height: 4,
       spacing: 50,
       textRadius: 22,
       boundsRadius: 17,
       textOffset: {x: 0, y: -2.5}
     },
     project: {
-      shadowRadius: 17.5,
-      length: 20,
+      shadowRadius: 17,
+      length: 21,
       spacing: 80,
       textRadius: 25,
       boundsRadius: 20,
@@ -152,6 +153,16 @@ export default function RPM (target, handler) {
   th.searchSVG.append('rect').attr('fill', '#fff').attr('width', '100%').attr('height', '100%').attr('x', '0').attr('y', '0')
   th.searchG = th.searchSVG.append('g')
   th.update()
+
+  window.addEventListener('hashchange', () => { th.updateFromHash() }, false)
+}
+
+RPM.prototype.updateFromHash = function () {
+  var data, th
+  th = this
+  th.focusId = window.location.hash.substr(1).split('/').pop()
+  data = th.getFlowerById(th.focusId)
+  th.update(data.data.type === 'task' ? data.parent.id : data.id)
 }
 
 RPM.prototype.addItem = function (d) {
@@ -189,7 +200,7 @@ RPM.prototype.addItem = function (d) {
       }
 
       th.updateFlower()
-      children = th.getNodeById(th.activeId).children
+      children = th.getFlowerById(th.activeId).children
       node = children[children.length - 1]
       th.callHandler('added', node)
       th.focusId = node.id
@@ -332,7 +343,7 @@ RPM.prototype.update = function (id, eventType) {
     th.breadcrumbContainer.transition().style('opacity', 1)
     th.searchSVG.transition().style('opacity', 0).remove()
     if (typeof id !== 'undefined') {
-      th.drawNode(th.getNodeById(id) || th.flower, eventType)
+      th.drawNode(th.getFlowerById(id) || th.flower, eventType)
     } else {
       th.drawNode(th.flower, eventType)
     }
@@ -364,7 +375,8 @@ RPM.prototype.search = function (value) {
 RPM.prototype.data = function (value) {
   if (value) {
     this._data = value
-    this.update()
+    this.updateFlower()
+    this.updateFromHash()
   }
   return this._data
 }
@@ -415,7 +427,7 @@ RPM.prototype.drawSearch = function () {
     th.updateNode(el, d.data, 0, d)
   }).on('click', function (d) {
     th._searchString = ''
-    th.update(d.data.id)
+    th.updatePath(d.data.id)
   })
 
   nodes.merge(newNodes).each(function (d) {
@@ -436,6 +448,10 @@ RPM.prototype.drawSearch = function () {
   function translate (d) {
     return 'translate(' + [d.x + nodeSize[0] / 2, d.y + nodeSize[1] / 2] + ')'
   }
+}
+
+RPM.prototype.updatePath = function (id) {
+  window.location.hash = this.getBreadcrumb(this._flowerById[id]).map(v => v.id).join('/')
 }
 
 RPM.prototype.getFocusedDatum = function () {
@@ -500,10 +516,7 @@ RPM.prototype.drawNode = function (node, eventType) {
     .on('click', function (d, i) {
       var node
       node = (d.id === th.activeId) ? (d.parent || d) : d
-      th.focusId = node.id
-      th.updateFlower()
-      th.drawNode(node.data.type === 'task' ? th._flowerById[th.activeId] : node)
-      th.callHandler('select', node)
+      th.updatePath(node.id)
     })
 
   newNodes.merge(nodes).each(function (d, i) {
@@ -653,6 +666,12 @@ RPM.prototype.drawNode = function (node, eventType) {
 
   th.callHandler(eventType || 'draw', node)
   th.callHandler('changedParental', node)
+
+  console.log(th._drawedFocus, th.focusId)
+  if (th._drawedFocus !== th.focusId) {
+    th.callHandler('select', th.getFocusedDatum())
+    th._drawedFocus = th.focusId
+  }
 }
 
 RPM.prototype.prepareItemToComplete = function (id, value) {
@@ -832,27 +851,16 @@ RPM.getLinks = function (node) {
 }
 
 RPM.prototype.updateBreadcrumb = function (newItem) {
-  var index, th, items, newItems
+  var th, items, newItems
   th = this
 
-  for (let i = 0; i < th.breadcrumb.length; i++) {
-    if (th.breadcrumb[i].id === newItem.id) {
-      index = i
-      break
-    }
-  }
-
-  if (typeof index === 'undefined') {
-    th.breadcrumb.push(newItem)
-  } else {
-    th.breadcrumb.splice(index + 1)
-  }
+  this.breadcrumb = this.getBreadcrumb(newItem)
 
   items = th.breadcrumbContainer.selectAll('.breadcrumb-item').data(th.breadcrumb)
   newItems = items.enter().append('div').attr('class', 'breadcrumb-item')
 
   newItems.on('click', function (d) {
-    th.drawNode(th.getNodeById(d.id) || th.flower)
+    th.drawNode(th.getFlowerById(d.id) || th.flower)
   })
   .style('opacity', 0)
   .transition()
@@ -861,6 +869,15 @@ RPM.prototype.updateBreadcrumb = function (newItem) {
   newItems.merge(items).text(function (d) { return d.data.name })
   items.exit().transition()
     .style('opacity', 0).remove()
+}
+
+RPM.prototype.getBreadcrumb = function (datum) {
+  datum = datum || this.getFocusedDatum()
+  var res = [datum]
+  while (datum.parent) {
+    res.unshift(datum = datum.parent)
+  }
+  return res
 }
 
 RPM.prototype.updateText = function (node, d, data, isDraft) {
@@ -1385,7 +1402,7 @@ RPM.prototype.updateFlower = function () {
       child = set[i]
       child.angle = i / (set.length) * Math.PI * 2 + Math.PI / 4
       coord = RPM.rotZ(0, -radius, child.angle)
-      child.x = d.x + coord.x
+      child.x = d.x + coord.x * RPM.xScale
       child.y = d.y + coord.y * RPM.yScale
       child.data.id = child.data.id || (child.data.type + String(idCounter++) + (child.data.proposed ? 'p' : '') + i)
       child.id = child.data.id
@@ -1437,12 +1454,13 @@ RPM.prototype.addDraftLabel = function (target) {
     .attr('d', ['M', 0, offset, -arrowSize[0] / 2, -arrowSize[1] - 1 + offset, arrowSize[0] / 2, -arrowSize[1] - 1 + offset, 'z'].join(' '))
 }
 
-RPM.prototype.getNodeById = function (id, nodes) {
+RPM.prototype.getFlowerById = function (id, nodes) {
   return this._flowerById[id]
 }
 
 RPM.yScale = 0.7071067812
 RPM.xScale = 1.224744871
+// RPM.xScale = 1
 RPM.diagonalScale = 1.414213562
 
 RPM.rotZ = function (x, y, angle) {
