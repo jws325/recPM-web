@@ -84,6 +84,7 @@ export default {
       }
     },
     diagramHandler (d) {
+      console.log(d)
       this.node = d.data
       this.$emit(d.type, d)
     },
