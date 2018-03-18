@@ -31,7 +31,7 @@
         <label class="section-label">Manager(s):</label>
         <div class="list">
           <div v-for="manager in assigned.managers" class="item" v-bind:title="manager.name">
-            <img v-bind:src="'static/images/' + manager.portrait"></img>
+            <img v-bind:src="'/static/images/' + manager.portrait"></img>
             <div class="minus-button" v-on:click="removePerson(manager)"></div>
           </div>
           <div class="item">
@@ -45,7 +45,7 @@
         <label class="section-label">Worker(s):</label>
         <div class="list">
           <div v-for="worker in assigned.workers" class="item" v-bind:title="worker.name">
-            <img v-bind:src="'static/images/' + worker.portrait"></img>
+            <img v-bind:src="'/static/images/' + worker.portrait"></img>
             <div class="minus-button" v-on:click="removePerson(worker)"></div>
           </div>
           <div class="item">

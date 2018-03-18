@@ -15,15 +15,12 @@
       <div class="body cell" v-bind:class="{comments: showComments}">
         <rpm-diagram
           v-bind:nodes-data="rpmData.nodes"
-          v-on:added="applyDatum"
-          v-on:removed="applyDatum"
-          v-on:draw="applyDatum"
           v-on:select="applyDatum"
-          v-on:changedParental="applyParentalDatum"
           v-bind:search="searchString"
           v-bind:show-proposed="showProposed"
           v-bind:show-completed="showCompleted"
-          v-bind:view-type="viewType">
+          v-bind:view-type="viewType"
+          ref="diagramComponent">
         </rpm-diagram>
         <div class="diagram-options" v-if="panels.options">
           <label class="proposed-switcher"><input type="checkbox" v-model="showProposed"> <span>Show Proposed</span>
@@ -133,7 +130,8 @@ export default {
         header: true,
         options: true,
         viewType: true
-      }
+      },
+      diagram: null
     }
   },
   methods: {
@@ -149,7 +147,7 @@ export default {
     applyDatum (e) {
       this.datum = e.data
       this.searchString = ''
-
+      this.updatePath()
       // this.$emit('changedDatum', this.datum)
     },
     applyParentalDatum (e) {
@@ -215,6 +213,9 @@ export default {
     },
     completeChanged (e) {
       this.$emit('completeChanged', e)
+    },
+    updatePath () {
+      // this.$router.push(this.$route.path + '#' + this.diagram.getBreadcrumb().map(v => v.id).join('/'))
     }
   },
   watch: {
@@ -225,6 +226,9 @@ export default {
         }
       },
       deep: true
+    },
+    $route (to, from) {
+      // console.log('route change')
     }
   },
   components: {
@@ -235,16 +239,14 @@ export default {
     vueComments
   },
   mounted: function () {
-    this.loadData('static/data.json')
+    this.loadData('/static/data.json')
 
+    this.diagram = this.$refs.diagramComponent.diagram
     if (this.$route.query.panels === 'false') {
-      this.panels.header = false
-      this.panels.options = false
-      this.panels.sidebar = false
-      this.panels.viewType = false
+      for (let key in this.panels) {
+        this.panels[key] = false
+      }
     }
-    // this.hidePanels = this.$route.query.hidePanels === 'true'
-    // console.log(this.$route.params, this.$route.query)
   }
 }
 </script>
