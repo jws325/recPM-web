@@ -263,7 +263,7 @@ export default {
   height: 100%;
   position: absolute;
   left: 30px;
-  right: 30px;
+  right: 240px;
   top: 0;
 }
 
