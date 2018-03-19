@@ -328,12 +328,12 @@
     stroke-width: 0;
 }
 
-.rpm-svg .task-node:not([data-assigned]) .task-cap {
+.rpm-svg .task-node.proposed .task-cap {
     fill: #fff !important;
     stroke-width: 2.5;
 }
 
-.rpm-svg .task-node:not([data-assigned]) .task-body {
+.rpm-svg .task-node.proposed .task-body {
     fill: #fff !important;
     stroke-width: 2.5;
 }
@@ -473,21 +473,21 @@
     stroke-width: 0;
 }
 
-.rpm-svg .project-node[data-empty="true"] .project-cap {
-    fill: #fff !important;;
-    stroke-width: 2.5 !important;
-}
-
-.rpm-svg .project-node[data-empty="true"] .project-center-line {
-    stroke-width: 2.5 !important;
-}
-
-.rpm-svg .project-node[data-empty="true"] .project-fill {
+.rpm-svg .project-node.proposed .project-cap {
     fill: #fff !important;
     stroke-width: 2.5 !important;
 }
 
-.rpm-svg .project-node[data-empty="true"] .reflection {
+.rpm-svg .project-node.proposed .project-center-line {
+    stroke-width: 2.5 !important;
+}
+
+.rpm-svg .project-node.proposed .project-fill {
+    fill: #fff !important;
+    stroke-width: 2.5 !important;
+}
+
+.rpm-svg .project-node.proposed .reflection {
     fill: none;
 }
 
@@ -615,8 +615,8 @@
   transform: scale(1);
 }
 
-.rpm-svg .project-node[data-empty="true"] .reflection {
-  opacity: 0.15;
+.rpm-svg .project-node.proposed .reflection {
+  opacity: 0;
 }
 
 .rpm-svg .project-node[data-importance="undefined"] .reflection {
@@ -644,7 +644,7 @@
   transform: translate(0, 2px);
 }
 
-.rpm-svg .task-node:not([data-assigned]) .reflection {
+.rpm-svg .task-node.proposed .reflection {
   opacity: 0;
 }
 

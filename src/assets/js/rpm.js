@@ -1162,7 +1162,7 @@ RPM.prototype.updateTaskItem = function (node, data, t) {
   radius = th.itemOptions.task.length / 2
   height = th.itemOptions.task.height
   checkIconScale = 0.45
-  recurringIconScale = 0.5
+  recurringIconScale = 0.6
   arrowSize = [4, 4]
   recurringEndAngle = Math.PI * 1.65
   progressD = []
@@ -1221,10 +1221,10 @@ RPM.prototype.updateTaskItem = function (node, data, t) {
   endPoint = RPM.rotZ(0, -radius, recurringEndAngle)
 
   recurringIcon = g.select('path')
-  .attr('d', ['M', 0, (-radius * RPM.xScale * recurringIconScale),
-    'A', radius * recurringIconScale, radius * recurringIconScale,
+  .attr('d', ['M', 0, (-radius * RPM.yScale * recurringIconScale),
+    'A', radius * recurringIconScale * RPM.xScale, radius * recurringIconScale * RPM.yScale,
     0, 1, 1,
-    endPoint.x * recurringIconScale, endPoint.y * recurringIconScale].join(' '))
+    endPoint.x * recurringIconScale * RPM.xScale, endPoint.y * recurringIconScale * RPM.yScale].join(' '))
 
   recurringIcon.style('stroke-dasharray', recurringIcon.node().getTotalLength())
     .style('stroke-dashoffset', recurringIcon.node().getTotalLength())
@@ -1259,7 +1259,7 @@ RPM.prototype.updateProjectItem = function (node, data, t, bottomT) {
   node.select('.project-cap').attr('d', getCapD(len * t)).attr('class', 'project-cap')
   node.select('.project-center-line')
     .attr('x1', 0)
-    .attr('y1', len / 2)
+    .attr('y1', len / 2 - bottomT * len)
     .attr('x2', 0)
     .attr('y2', -len * t + len / 2)
 
