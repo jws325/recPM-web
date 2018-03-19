@@ -217,7 +217,7 @@ export default {
   }
 
   .main-header .add-button:hover .icon {
-      opacity: 0.3;
+      opacity: 0.5;
   }
 
   .main-header .add-project .icon {
