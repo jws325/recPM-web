@@ -169,20 +169,22 @@ RPM.prototype.shake = function () {
 }
 
 RPM.prototype.updateFromHash = function (isInitial) {
-  var data, th, hash, id
+  var datum, th, hash, id
   th = this
   hash = window.location.hash.replace(/(^#|\/$)/g, '')
   id = hash.split('/').pop() || th.flower.id
-  data = th.getFlowerById(id)
-  if (!data) {
+  datum = th.getFlowerById(id)
+  if (!datum) {
     if (isInitial) {
       window.alert('The diagram does not contain the node requested in the URL. Will be shown the root node.')
     }
     th.shake()
-    data = th.getFlowerById(th.focusId) || th.getFlowerById(th.activeId) || th.flower
+    datum = th.getFlowerById(th.focusId) || th.getFlowerById(th.activeId) || th.flower
   }
-  th.focusId = data.id
-  th.update(data.data.type === 'task' ? data.parent.id : data.id)
+
+  id = (datum.data.type === 'task' || th.focusId !== datum.id) && datum.parent ? datum.parent.id : datum.id
+  th.focusId = datum.id
+  th.update(id)
 }
 
 RPM.prototype.addItem = function (d) {
@@ -539,7 +541,13 @@ RPM.prototype.drawNode = function (node, eventType) {
     .on('click', function (d, i) {
       var node
       node = (d.id === th.activeId) ? (d.parent || d) : d
-      th.updatePath(node.id)
+
+      if ((node.id === th.focusId || d.id === th.activeId) && d.parent && d.data.type !== 'task') {
+        th.focusId = d.id
+        th.drawNode(node)
+      } else {
+        th.updatePath(node.id)
+      }
     })
 
   newNodes.merge(nodes).each(function (d, i) {
@@ -1078,7 +1086,7 @@ RPM.prototype.updateNode = function (node, data, t, d, bottomT) {
     }
   } else {
     th.addShadow(node, data)
-    item = th.createItem(node.append('g').attr('class', 'item-container'), data)
+    item = th.createItem(node.append('g').attr('class', 'item-container'), data, d)
     item.node()._type = data.type
   }
 
@@ -1094,11 +1102,11 @@ RPM.prototype.updateNode = function (node, data, t, d, bottomT) {
   // }
 }
 
-RPM.prototype.createItem = function (target, data) {
+RPM.prototype.createItem = function (target, data, d) {
   if (data.type === 'project') {
-    return this.createProjectItem(target, data)
+    return this.createProjectItem(target, data, d)
   } else if (data.type === 'task') {
-    return this.createTaskItem(target, data)
+    return this.createTaskItem(target, data, d)
   }
 }
 
@@ -1128,7 +1136,7 @@ RPM.prototype.addShadow = function (node, data) {
   return node
 }
 
-RPM.prototype.createProjectItem = function (target) {
+RPM.prototype.createProjectItem = function (target, data, d) {
   var g
 
   g = target.append('g').attr('class', 'item project-item')
@@ -1136,6 +1144,11 @@ RPM.prototype.createProjectItem = function (target) {
   g.append('path').attr('class', 'project-fill')
   g.append('path').attr('class', 'project-cap')
   g.append('line').attr('class', 'project-center-line')
+  g.append('g').attr('class', 'direction-g')
+    .attr('visibility', d.parent ? 'visible' : 'hidden')
+    .append('path')
+    .attr('class', 'direction')
+    .attr('d', 'M0,8A8,8,0,0,1-8,0,8,8,0,0,1,0-8,8,8,0,0,1,8,0,8,8,0,0,1,0,8ZM3.734-1.9a1.036,1.036,0,0,0-1.465,0L0,0.368-2.263-1.9a1.036,1.036,0,0,0-1.465,0,1.036,1.036,0,0,0,0,1.465l3,3a1.036,1.036,0,0,0,1.465,0l3-3A1.036,1.036,0,0,0,3.734-1.9Z')
   return g
 }
 
@@ -1262,6 +1275,7 @@ RPM.prototype.updateProjectItem = function (node, data, t, bottomT) {
     .attr('y1', len / 2 - bottomT * len)
     .attr('x2', 0)
     .attr('y2', -len * t + len / 2)
+  node.select('.direction-g').attr('transform', 'translate(0, ' + -(bottomT * len + len / 2) + ')')
 
   function getD (from, height) {
     return ['M', -width / 2, -from,
