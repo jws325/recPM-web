@@ -455,6 +455,22 @@
     stroke-linejoin: round;
 }
 
+.rpm-svg .project-node .direction {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.rpm-svg .project-node[data-focus="true"] .direction {
+  opacity: 0.35;
+  transform: scale(1);
+}
+
+.rpm-svg .project-node[data-active="true"] .direction {
+  opacity: 0.35;
+  transform: scale(1) rotate(180deg);
+}
+
 .rpm-svg .project-node .project-progress {
     visibility: hidden;
 }
