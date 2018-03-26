@@ -203,7 +203,8 @@ RPM.prototype.addItem = function (d) {
       managers: [],
       workers: [],
       dependencies: [],
-      people: []
+      people: [],
+      attachments: []
     }
 
     for (key in d) {
