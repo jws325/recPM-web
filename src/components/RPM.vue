@@ -377,6 +377,18 @@ export default {
   /* .hidden-panels .header-row, .hidden-panels .sidebar, .hidden-panels .view-type, .hidden-panels .diagram-options {
     display: none !important;
   } */
+  .link:hover {
+    text-decoration: underline;
+  }
+
+  .active-text {
+     color: #7aa5e0;
+     cursor: pointer;
+  }
+
+  .active-text:active {
+    color: #3487c2;
+  }
 
   .faded-text {
     color: #a6a4a4;
