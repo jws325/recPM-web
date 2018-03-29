@@ -6,7 +6,7 @@
         <li><label>{{peopleMapping[datum.data.type] | capitalize}}</label><br><span class="not-filled" v-if="!assigned[peopleMapping[datum.data.type]].length"></span>
           <span>
             <ul v-if="assigned[peopleMapping[datum.data.type]].length">
-              <li v-for="person in assigned[peopleMapping[datum.data.type]]">{{person.name}}</li>
+              <li v-for="person in assigned[peopleMapping[datum.data.type]]" :key="person.id">{{person.name}}</li>
             </ul>
           </span>
         </li>
@@ -18,7 +18,14 @@
         <li><label>Dependencies</label><br><span class="not-filled" v-if="!assigned.dependencies.length"></span>
           <span v-if="assigned.dependencies.length">
             <ul>
-              <li v-for="person in assigned.dependencies">{{person.name}}</li>
+              <li v-for="person in assigned.dependencies" :key="person.id">{{person.name}}</li>
+            </ul>
+          </span>
+        </li>
+        <li><label>Attachments</label><br><span class="not-filled" v-if="!datum.data.attachments || !datum.data.attachments.length"></span>
+          <span v-if="datum.data.attachments && datum.data.attachments.length">
+            <ul class="attachments-list">
+              <li v-for="attachment in datum.data.attachments" :key="attachment.name"><div class="active-text link">{{attachment.name}}</div></li>
             </ul>
           </span>
         </li>
@@ -122,6 +129,27 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  .attachments-list {
+    /* list-style-position: inside; */
+    /* padding-left: 0 !important; */
+  }
+
+  .attachments-list li {
+    position: relative;
+    padding-left: 2px;
+  }
+
+  .attachments-list li div {
+    display: block;
+    position: absolute;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    left: 0;
+    right: 0;
+    top: 0;
+  }
+
   .rpm-info {
     position: absolute;
     left: 0;

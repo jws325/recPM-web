@@ -4,14 +4,14 @@
       <div class="overlay" v-if="showManagers">
           <div class="managers people">
               <ul>
-                  <li v-for="manager in people.managers" v-on:click="addPerson(manager); showManagers = false">{{manager.name}}</li>
+                  <li v-for="manager in people.managers" :key="manager.name" v-on:click="addPerson(manager); showManagers = false">{{manager.name}}</li>
               </ul>
           </div>
       </div>
       <div class="overlay" v-if="showWorkers">
           <div class="workers people">
               <ul>
-                  <li v-for="worker in people.workers" v-on:click="addPerson(worker); showWorkers = false">{{worker.name}}</li>
+                  <li v-for="worker in people.workers" :key="worker.name" v-on:click="addPerson(worker); showWorkers = false">{{worker.name}}</li>
               </ul>
           </div>
       </div>
@@ -30,8 +30,8 @@
       <div v-if="datum.type === 'project'" class="section managers people">
         <label class="section-label">Manager(s):</label>
         <div class="list">
-          <div v-for="manager in assigned.managers" class="item" v-bind:title="manager.name">
-            <img v-bind:src="'/static/images/' + manager.portrait"></img>
+          <div v-for="manager in assigned.managers" :key="manager.name" class="item" v-bind:title="manager.name">
+            <img v-bind:src="'/static/images/' + manager.portrait">
             <div class="minus-button" v-on:click="removePerson(manager)"></div>
           </div>
           <div class="item">
@@ -44,8 +44,8 @@
       <div v-if="datum.type === 'task'" class="section workers people">
         <label class="section-label">Worker(s):</label>
         <div class="list">
-          <div v-for="worker in assigned.workers" class="item" v-bind:title="worker.name">
-            <img v-bind:src="'/static/images/' + worker.portrait"></img>
+          <div v-for="worker in assigned.workers" :key="worker.name" class="item" v-bind:title="worker.name">
+            <img v-bind:src="'/static/images/' + worker.portrait">
             <div class="minus-button" v-on:click="removePerson(worker)"></div>
           </div>
           <div class="item">
@@ -58,7 +58,7 @@
       <div class="section importance">
           <label class="section-label">Importance:</label>
           <div class="table">
-              <div class="cell" v-for="level in importanceLevels" v-bind:class="[level, {selected:level === datum.importance}]" v-on:click="datum.importance = level" >
+              <div class="cell" v-for="level in importanceLevels" :key="level" v-bind:class="[level, {selected:level === datum.importance}]" v-on:click="datum.importance = level" >
                   <i class="radio"></i><br>
                   {{level | capitalize}}
               </div>
@@ -80,11 +80,18 @@
       <div class="section depends">
           <label class="section-label"><input type="checkbox" v-model="onDependsOn"> Depends On</label>
           <ul v-if="onDependsOn && neighbors.length > 0">
-              <li v-for="neighbor in neighbors" v-if="neighbor.id !== datum.id" v-bind:class="{'depends-disabled': neighbor.recurring}"><label><div class="recurring-icon" v-if="neighbor.recurring"></div><input type="checkbox" v-if="!neighbor.recurring" v-bind:value="neighbor.id" v-model="datum.dependencies"> {{neighbor.name}}</label></li>
+              <li v-for="neighbor in neighbors" :key="neighbor.id" v-if="neighbor.id !== datum.id" v-bind:class="{'depends-disabled': neighbor.recurring}"><label><div class="recurring-icon" v-if="neighbor.recurring"></div><input type="checkbox" v-if="!neighbor.recurring" v-bind:value="neighbor.id" v-model="datum.dependencies"> {{neighbor.name}}</label></li>
           </ul>
           <div class="info" v-if="onDependsOn && neighbors.length <= 1">
             Requires more than one project or task on level of this {{datum.type}} to create dependency
           </div>
+      </div>
+      <div class="section files">
+        <input type="file" multiple style="display: none;" ref="fileInput" @change="filesChange">
+        <div class="attach-icon"></div> <span class="active-text" v-on:click="clickFileInput">{{datum.attachments && datum.attachments.length ? 'Add files...' : 'Attach files...'}}</span>
+        <ul ng-if="datum.attachments && datum.attachments.length">
+          <li class="active-text" v-for="(attachment, index) in datum.attachments" :key="attachment.name"><div class="remove-button" v-on:click="removeAttachment(index)"></div> <span class="link">{{attachment.name}}</span></li>
+        </ul>
       </div>
       <div class="section">
         <button type="submit" v-on:click="save">Save</button>
@@ -184,6 +191,22 @@ export default {
       this.isRecurring = this.datum.recurring
       this.onDependsOn = !!(this.datum.dependencies && this.datum.dependencies.length)
       this.initialStatus = this.datum.initialStatus
+    },
+    clickFileInput () {
+      this.$refs.fileInput.click()
+    },
+    filesChange () {
+      if (!this.datum.attachments) {
+        this.$set(this.datum, 'attachments', [])
+      }
+
+      for (let i = 0; i < this.$refs.fileInput.files.length; i++) {
+        this.datum.attachments.push(this.$refs.fileInput.files[i])
+      }
+      this.$refs.fileInput.value = ''
+    },
+    removeAttachment (index) {
+      this.datum.attachments.splice(index, 1)
     }
   },
   watch: {
@@ -225,6 +248,77 @@ export default {
 
 
 <style scoped>
+
+.section.files .attach-icon {
+  width: 15px;
+  height: 15px;
+  background: url('../assets/icons-assets/attach-icon.svg') no-repeat center center;
+  background-size: contain;
+  display: inline-block;
+  margin-bottom: -2px;
+  opacity: 0.4;
+  margin-left: 2px;
+  margin-right: 0px;
+}
+
+.section.files ul {
+  /* list-style-position: inside; */
+  padding-left: 0;
+  margin: 4px 0;
+  list-style-type: none;
+}
+
+.section.files ul li {
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.section.files ul li span {
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.section.files .remove-button {
+  width: 14px;
+  height: 14px;
+  line-height: 12px;
+  border-radius: 7px;
+  text-align: center;
+  border: 1px solid #ebebeb;
+  box-sizing: border-box;
+  position: relative;
+  display: inline-block;
+  margin-bottom: -2px;
+  margin-right: 2px;
+  margin-left: 2px;
+  cursor: pointer;
+}
+
+.section.files .remove-button:hover {
+  background: #ff6e58;
+  border: 0;
+}
+
+.section.files .remove-button:hover:after {
+  background: #FFF;
+}
+
+.section.files .remove-button:after {
+  /* content: "−"; */
+  content: "";
+  display: block;
+  position: absolute;
+  width: 6px;
+  height: 2px;
+  left: 50%;
+  top: 50%;
+  margin-left: -3px;
+  margin-top: -1px;
+  background-color: #a7a7a7;
+}
 
 .item-form {
     font-family: 'Open Sans', sans-serif;

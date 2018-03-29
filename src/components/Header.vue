@@ -7,7 +7,7 @@
         <span class="company-name">{{d.companyName}}</span><br>
         <span v-bind:class="{'short-address': shortProjectAddress}">
           <label class="header-fade">Project Address: </label>
-          <strong class="address" v-bind:title="d.projectAddress" v-on:click="shortProjectAddress = !shortProjectAddress">{{d.projectAddress | shorten(shortProjectAddress ? 4 : Infinity, 3)}}</strong>
+          <strong class="address active-text" v-bind:title="d.projectAddress" v-on:click="shortProjectAddress = !shortProjectAddress">{{d.projectAddress | shorten(shortProjectAddress ? 4 : Infinity, 3)}}</strong>
         </span>
         <div class="project-upvotes">
           <label class="header-fade">Upvotes:</label>
@@ -34,7 +34,7 @@
       <div>
         <search-input v-bind:hold="hold" v-on:search="search"></search-input><br>
         <div v-if="viewType === 'voter'">
-          <label class="header-fade">My Address: </label><strong v-bind:title="d.voterAddress" v-on:click="shortVoterAddress = !shortVoterAddress" class="address">{{d.voterAddress | shorten(shortVoterAddress ? 4 : Infinity, 3) }}</strong><br>
+          <label class="header-fade">My Address: </label><strong v-bind:title="d.voterAddress" v-on:click="shortVoterAddress = !shortVoterAddress" class="address active-text">{{d.voterAddress | shorten(shortVoterAddress ? 4 : Infinity, 3) }}</strong><br>
           <label class="header-fade">Votes Remaining: </label><strong>{{d.votesRemaining - upvotes}}</strong>
         </div>
       </div>
@@ -231,8 +231,7 @@ export default {
   }
 
   .address {
-      color: #67B6F0;
-      cursor: default;
+      /* cursor: default; */
   }
 
   .voter-info {
@@ -244,7 +243,7 @@ export default {
   }
 
   strong {
-    color: #656565;
+    /* color: #656565; */
     font-weight: 600;
   }
 

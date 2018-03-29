@@ -462,12 +462,12 @@
 }
 
 .rpm-svg .project-node[data-focus="true"] .direction {
-  opacity: 0.35;
+  opacity: 0.5;
   transform: scale(1);
 }
 
 .rpm-svg .project-node[data-active="true"] .direction {
-  opacity: 0.35;
+  opacity: 0.5;
   transform: scale(1) rotate(180deg);
 }
 
