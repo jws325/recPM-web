@@ -13,9 +13,11 @@
           <label class="header-fade">Upvotes:</label>
           <strong>{{d.projectUpvotes}}</strong>
           <span v-if="viewType === 'voter'">
-            <span class="upvotes" v-if="upvotes > 0">+ {{upvotes}}</span>
+            <transition name="shrink">
+              <span class="upvotes" v-if="upvotes > 0">+ <slide-text :value="upvotes"></slide-text></span>
+            </transition>
             <div class="voting">
-              <div v-on:click="changeVote(-1)">−</div><div v-on:click="changeVote(1)">+</div>
+              <div v-on:click="changeVote(-1)">−</div><div :class="{upvoted: upvotes > 0}" v-on:click="changeVote(1)">+</div>
             </div>
             <!-- <div class="vote-icon" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()"></div> -->
             <!-- <div class="vote-button" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()">Upvote</div> -->
@@ -35,7 +37,7 @@
         <search-input v-bind:hold="hold" v-on:search="search"></search-input><br>
         <div v-if="viewType === 'voter'">
           <label class="header-fade">My Address: </label><strong v-bind:title="d.voterAddress" v-on:click="shortVoterAddress = !shortVoterAddress" class="address active-text">{{d.voterAddress | shorten(shortVoterAddress ? 4 : Infinity, 3) }}</strong><br>
-          <label class="header-fade">Votes Remaining: </label><strong>{{d.votesRemaining - upvotes}}</strong>
+          <label class="header-fade">Votes Remaining: </label><strong><slide-text :value="d.votesRemaining - upvotes"></slide-text></strong>
         </div>
       </div>
     </div>
@@ -44,6 +46,7 @@
 
 <script>
 import SearchInput from './SearchInput.vue'
+import slideText from './SlideText.vue'
 export default {
   name: 'mainHeader',
   props: ['d', 'searchString', 'viewType'],
@@ -68,7 +71,10 @@ export default {
       this.upvotes = Math.min(this.d.votesRemaining, Math.max(0, this.upvotes + value))
     }
   },
-  components: {SearchInput}
+  components: {
+    SearchInput,
+    slideText
+  }
 }
 </script>
 
@@ -77,6 +83,7 @@ export default {
   .header {
     border-bottom: 1px solid #f5f5f5;
     transition: border 0.5s ease;
+    line-height: 1.4em;
   }
 
   .header .search-input-wrapper {
@@ -105,15 +112,7 @@ export default {
     position: relative;
     line-height: 0;
     margin: 0 3px;
-  }
-
-  .voting:before {
-    content: "";
-    left: 50%;
-    position: absolute;
-    top: 4px;
-    bottom: 4px;
-    border-right: 1px solid #e9e9e9;
+    user-select: none;
   }
 
   .voting > * {
@@ -124,6 +123,11 @@ export default {
     width: 30px;
     box-sizing: border-box;
     cursor: default;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s, transform 0.1s;
+  }
+
+  .voting > *:hover {
+    opacity: 0.9;
   }
 
   .voting > *:first-child {
@@ -132,15 +136,31 @@ export default {
     border-right: 0;
   }
 
+  .voting > *:first-child:active {
+    transform: translate(0, 2px)
+  }
+
+  .voting > *:last-child:active {
+    transform: translate(0, -2px)
+  }
+
   .voting > *:last-child {
     border-top-right-radius: 9px;
     border-bottom-right-radius: 9px;
-    border-left: 0;
+    /* border-left: ; */
+  }
+
+  .voting .upvoted {
+    background: #ff8375;
+    border-color: #ff8375;
+    color: #fff;
   }
 
   .upvotes {
-    color: #fa8037;
     font-weight: 600;
+    display: inline-block;
+    width: 25px;
+    white-space: nowrap;
   }
 
   .main-header  {
@@ -306,5 +326,14 @@ export default {
 
   .vote-switcher.voted > * {
     transform: translate(0, -100%)
+  }
+
+  .shrink-enter-active, .shrink-leave-active {
+    transition: opacity 0.3s ease, width 0.3s ease;
+  }
+
+  .shrink-enter, .shrink-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+    width: 0;
   }
 </style>

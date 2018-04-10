@@ -1,7 +1,7 @@
 <template>
-  <div class="rpm-info buttons-zone">
+  <div class="rpm-info buttons-zone sidebar-padding">
     <div class="section">
-      <h2>{{datum.data.name}}</h2>
+      <!-- <h2>{{datum.data.name}}</h2> -->
       <ul class="top-ul">
         <li><label>{{peopleMapping[datum.data.type] | capitalize}}</label><br><span class="not-filled" v-if="!assigned[peopleMapping[datum.data.type]].length"></span>
           <span>
@@ -151,12 +151,12 @@ export default {
   }
 
   .rpm-info {
+    overflow: auto;
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
-    overflow: auto;
   }
 
   .section.people .item {

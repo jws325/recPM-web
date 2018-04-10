@@ -82,7 +82,24 @@
               "dependencies": [],
               "status": "assigned",
               "workers": ["w2"],
-			  "notes": "It works well but needs more handholding / context."			  
+              "notes": "It works well but needs more handholding / context.",
+              "issues": [
+                {
+                  "content": "limit minimum and maximum zoom level",
+                  "created": "2018-04-04",
+                  "id": "1"
+                },
+                {
+                  "content": "right now new projects and tasks created by the project owner are hollow they should look identical to the existing tasks",
+                  "created": "2017-04-04",
+                  "id": "2"
+                },
+                {
+                  "content": "there should be a way to add attachments to a project / task",
+                  "created": "2019-04-08",
+                  "id": "3"
+                }
+              ]	  
           },
           {
               "name": "Complete Whitepaper",

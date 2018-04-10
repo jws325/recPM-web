@@ -9,15 +9,15 @@
           </div>
       </div>
       <div class="overlay" v-if="showWorkers">
-          <div class="workers people">
-              <ul>
-                  <li v-for="worker in people.workers" :key="worker.name" v-on:click="addPerson(worker); showWorkers = false">{{worker.name}}</li>
-              </ul>
-          </div>
+        <div class="workers people">
+          <ul>
+            <li v-for="worker in people.workers" :key="worker.name" v-on:click="addPerson(worker); showWorkers = false">{{worker.name}}</li>
+          </ul>
+        </div>
       </div>
     </transition>
     <!-- <h2>New Project</h2> -->
-    <div class="info-form">
+    <div class="info-form sidebar-padding">
       <div class="section">
           <label class="section-label">{{datum.type | capitalize}} Name:</label>
           <input type="text" v-model="datum.name">
@@ -88,7 +88,7 @@
       </div>
       <div class="section files">
         <input type="file" multiple style="display: none;" ref="fileInput" @change="filesChange">
-        <div class="attach-icon"></div> <span class="active-text" v-on:click="clickFileInput">{{datum.attachments && datum.attachments.length ? 'Add files...' : 'Attach files...'}}</span>
+        <div class="attach-icon"></div> <span class="active-text" v-on:click="clickFileInput"><slide-text :value="datum.attachments && datum.attachments.length ? 'Add files...' : 'Attach files...'"></slide-text></span>
         <ul ng-if="datum.attachments && datum.attachments.length">
           <li class="active-text" v-for="(attachment, index) in datum.attachments" :key="attachment.name"><div class="remove-button" v-on:click="removeAttachment(index)"></div> <span class="link">{{attachment.name}}</span></li>
         </ul>
@@ -107,6 +107,7 @@
 
 <script>
 import progressSlider from './ProgressSlider.vue'
+import slideText from './SlideText.vue'
 
 export default {
   name: 'newItem',
@@ -241,7 +242,8 @@ export default {
     this.init()
   },
   components: {
-    progressSlider
+    progressSlider,
+    slideText
   }
 }
 </script>
@@ -252,7 +254,7 @@ export default {
 .section.files .attach-icon {
   width: 15px;
   height: 15px;
-  background: url('../assets/icons-assets/attach-icon.svg') no-repeat center center;
+  background: url('../assets/icons-assets/attachment-icon.svg') no-repeat center center;
   background-size: contain;
   display: inline-block;
   margin-bottom: -2px;
@@ -330,21 +332,19 @@ export default {
     font-size: 14px;
     color: #6f6f6f;
     overflow: auto;
-    border-left: 1px solid #f5f5f5;
 }
 
 .info-form {
     font-family: 'Open Sans', sans-serif;
-    position: absolute;
-    right: 0;
-    top: 0;
-    left: 0;
-    bottom: 0;
+    /* position: absolute; */
+    /* right: 0; */
+    /* top: 0; */
+    /* left: 0; */
+    /* bottom: 0; */
     font-size: 14px;
     color: #6f6f6f;
     overflow: auto;
     text-align: left;
-    padding: 15px;
 }
 
 .overlay {
@@ -445,11 +445,6 @@ input[type="text"] {
     background: #f2f2f2;
     transition: background-color 0.25s ease, box-shadow 0.4s ease;
     padding: 0 8px;
-}
-
-input[type="text"], textarea {
-    font: inherit !important;
-    color: inherit !important;
 }
 
 input[type="text"]::-webkit-contacts-auto-fill-button {
@@ -674,20 +669,8 @@ input[type="text"]:focus {
 }
 
 textarea {
-    border: 0;
-    outline: 0;
-    width: 100%;
-    height: 100px;
-    resize: vertical;
-    box-sizing: border-box;
-    background: #f2f2f2;
-    transition: background-color 0.25s ease, box-shadow 0.4s ease;
-    padding: 8px;
-}
-
-textarea:focus {
-    background: #fff;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  height: 100px;
+  resize: vertical;
 }
 
 button[type="submit"] {

@@ -16,7 +16,9 @@
     "d3": "^4",
     "axios": "^0.16.2",
     "jsonp": "0.2.1",
-    "vuejs-datepicker": "^0.9.15"
+    "vuejs-datepicker": "^0.9.15",
+    "moment": "2.22.0",
+    "vue-textarea-autosize": "1.0.4"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

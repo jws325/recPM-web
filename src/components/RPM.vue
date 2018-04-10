@@ -32,31 +32,63 @@
         </div>
         <transition name="fade">
           <div class="sidebar" v-if="!searchString && panels.sidebar">
-            <transition name="slide-h">
-              <node-info
-                v-if="!datum.empty && (!datum.data.draft && datum.data.name)"
-                v-bind:datum="datum"
-                v-bind:people="rpmData.people"
-                v-bind:neighbors="datum.parent ? datum.parent.data.children : []"
-                v-bind:show-comments="showComments"
-                v-bind:view-type="viewType"
-                v-bind:disqusname="disqusName"
-                v-on:comments-click="commentsHandler"
-                v-on:edit-click="editNode"
-                v-on:remove-click="removeNode"
-                v-bind:disqus-api-key="disqusApiKey">
-              </node-info>
-              <new-item
-                v-if="datum.data.draft"
-                v-on:save="save"
-                v-on:remove="removeNode"
-                v-on:cancel="cancelEdit"
-                v-on:completeChanged="completeChanged"
-                v-bind:datum="datum.data.draft"
-                v-bind:people="rpmData.people"
-                v-bind:neighbors="datum.parent ? datum.parent.data.children : []">
-              </new-item>
-            </transition>
+            <div id="sidebar-main-container">
+              <!-- <div class="info-tabs" v-bind:class="[tab + '-active']">
+                <div class="info-tabs-wrapper">
+                  <div v-for="(tabName, index) in tabs" :key="tabName" v-bind:class="[tabName + '-tab']" v-on:click="tab = index"><i></i></div>
+                  <div v-on:click="tab = 'info'" id="info-tab"><i></i></div>
+                  <div v-on:click="tab = 'issues'" id="issues-tab"><i></i></div>
+                  <div v-on:click="tab = 'attachments'" id="attachments-tab"><i></i></div>
+                </div>
+              </div> -->
+              <tabs v-bind:data="tabs" v-bind:tab-index="0" v-on:indexChanged="setTabIndex"></tabs>
+              <div id="sidebar-views-container" ref="sidebarViews">
+                <div id="sidebar-views-wrapper" ref="sidebarViewsWrapper">
+                  <div class="sidebar-view" data-name="Info">
+                    <transition name="fade">
+                      <div v-if="tabIndex === 0">
+                        <transition name="slide-h">
+                          <node-info
+                            v-if="!datum.empty && (!datum.data.draft && datum.data.name)"
+                            v-bind:datum="datum"
+                            v-bind:people="rpmData.people"
+                            v-bind:neighbors="datum.parent ? datum.parent.data.children : []"
+                            v-bind:show-comments="showComments"
+                            v-bind:view-type="viewType"
+                            v-bind:disqusname="disqusName"
+                            v-on:comments-click="commentsHandler"
+                            v-on:edit-click="editNode"
+                            v-on:remove-click="removeNode"
+                            v-bind:disqus-api-key="disqusApiKey">
+                          </node-info>
+                          <new-item
+                            v-if="datum.data.draft"
+                            v-on:save="save"
+                            v-on:remove="removeNode"
+                            v-on:cancel="cancelEdit"
+                            v-on:completeChanged="completeChanged"
+                            v-bind:datum="datum.data.draft"
+                            v-bind:people="rpmData.people"
+                            v-bind:neighbors="datum.parent ? datum.parent.data.children : []">
+                          </new-item>
+                        </transition>
+                      </div>
+                    </transition>
+                  </div>
+                  <div class="sidebar-view" data-name="Issues">
+                    <transition name="fade">
+                      <issues v-if="tabIndex === 1" v-bind:datum="datum" :lastVisit="issuesLastVisit()"></issues>
+                    </transition>
+                  </div>
+                  <div class="sidebar-view" data-name="Attachments">
+                    <transition name="fade">
+                      <div v-if="tabIndex === 2">
+                      </div>
+                    </transition>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="comments-wrapper">
               <transition name="fade-long">
                 <vue-comments
@@ -87,6 +119,9 @@ import rpmDiagram from './Diagram.vue'
 import nodeInfo from './NodeInfo.vue'
 import axios from 'axios'
 import vueComments from './Comments.vue'
+import tabs from './Tabs.vue'
+import issues from './Issues.vue'
+import moment from 'moment'
 
 export default {
   name: 'hello',
@@ -131,7 +166,9 @@ export default {
         options: true,
         viewType: true
       },
-      diagram: null
+      diagram: null,
+      tabs: [{name: 'Info'}, {name: 'Issues', highlight: true}, {name: 'Attachments'}],
+      tabIndex: 0
     }
   },
   methods: {
@@ -148,6 +185,7 @@ export default {
       this.datum = e.data
       this.searchString = ''
       this.updatePath()
+      this.tabs[1].highlight = this.newIssues()
       // this.$emit('changedDatum', this.datum)
     },
     applyParentalDatum (e) {
@@ -216,6 +254,28 @@ export default {
     },
     updatePath () {
       // this.$router.push(this.$route.path + '#' + this.diagram.getBreadcrumb().map(v => v.id).join('/'))
+    },
+    setTabIndex (event) {
+      var el
+      this.tabIndex = event.index
+      el = this.$refs.sidebarViews.querySelectorAll('.sidebar-view[data-name="' + event.name + '"]')
+      if (el.length) {
+        this.$refs.sidebarViewsWrapper.style.transform = 'translate(' + (-el[0].offsetLeft / this.$refs.sidebarViewsWrapper.offsetWidth * 100) + '%, 0)'
+      }
+    },
+    issuesLastVisit () {
+      return window.localStorage.issuesLastVisit || {}
+    },
+    newIssues () {
+      var lastVisit = moment(this.issuesLastVisit())
+      if (this.datum.data.issues) {
+        for (let i = 0; i < this.datum.data.issues.length; i++) {
+          if (lastVisit.isBefore(moment(this.datum.data.issues[i].updated || this.datum.data.issues[i].created))) {
+            return true
+          }
+        }
+      }
+      return false
     }
   },
   watch: {
@@ -236,11 +296,12 @@ export default {
     mainHeader,
     rpmDiagram,
     nodeInfo,
-    vueComments
+    vueComments,
+    tabs,
+    issues
   },
   mounted: function () {
     this.loadData('/static/data.json')
-
     this.diagram = this.$refs.diagramComponent.diagram
     if (this.$route.query.panels === 'false') {
       for (let key in this.panels) {
@@ -253,7 +314,136 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.tabs {
+  margin: 0 15px;
+}
+
+#sidebar-main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+}
+
+#sidebar-main-container > div {
+
+}
+
+#sidebar-views-container {
+  position: relative;
+  flex-grow: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar-views-wrapper {
+  transition: transform 0.3s ease;
+  flex: 1 1 auto;
+  width: 300%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+#sidebar-views-container .sidebar-view {
+  flex-grow: 1;
+  flex-basis: 0;
+  position: relative;
+}
+
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600');
+.info-tabs {
+  position: relative;
+}
+
+.info-tabs:before {
+  content: "";
+  position: absolute;
+  display: block;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #f5f5f5;
+}
+
+.info-tabs:after {
+  display: block;
+  content: "";
+  position: absolute;
+  height: 2px;
+  width: 42px;
+  background: #ababab;
+  transition: left 0.3s ease, margin 0.3s ease, width 0.3s ease;
+  bottom: 0;
+}
+
+.info-tabs.info-active:after {
+  left: 0;
+}
+
+.info-tabs.attachments-active:after {
+  left: 100%;
+  margin-left: -42px;
+}
+
+.info-tabs.issues-active:after {
+  left: 50%;
+  margin-left: -21px;
+}
+
+.info-tabs .info-tabs-wrapper {
+  display: table;
+  /* table-layout: fixed; */
+  width: 100%;
+  height: 59px;
+}
+
+.info-tabs .info-tabs-wrapper > div {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  width: 33.333%;
+  line-height: 0;
+}
+
+.info-tabs .info-tabs-wrapper > div:first-child {
+  padding-left: 13px;
+  text-align: left;
+}
+
+.info-tabs .info-tabs-wrapper > div:last-child {
+  padding-right: 13px;
+  text-align: right;
+}
+
+.info-tabs .info-tabs-wrapper > div > i {
+  display: inline-block;
+  opacity: 0.6;
+}
+
+.info-tabs .info-tabs-wrapper > #info-tab i {
+  width: 14px;
+  height: 18px;
+  background: url('../assets/icons-assets/list-icon.svg') no-repeat center center;
+  background-size: contain;
+}
+
+.info-tabs .info-tabs-wrapper > #issues-tab i {
+  width: 16px;
+  height: 19px;
+  background: url('../assets/icons-assets/issue-icon.svg') no-repeat center center;
+  background-size: contain;
+  margin-left: -5px;
+}
+
+.info-tabs .info-tabs-wrapper > #attachments-tab i {
+  width: 19px;
+  height: 21px;
+  background: url('../assets/icons-assets/attachment-icon.svg') no-repeat center center;
+  background-size: contain;
+}
 
 .rpm-main {
   overflow: hidden;
@@ -278,6 +468,8 @@ export default {
   bottom: 0;
   right: 0;
   background: #fff;
+  /* padding: 15px; */
+  border-left: 1px solid #f5f5f5;
 }
 
 .comments .sidebar {
@@ -289,13 +481,12 @@ export default {
 }
 
 .sidebar > * {
-  max-height: 100%;
+  /* max-height: 100%;
   font-size: 14px;
   color: #6f6f6f;
   overflow: auto;
   text-align: left;
-  padding: 15px;
-  border-left: 1px solid #f5f5f5;
+  border-left: 1px solid #f5f5f5; */
 }
 
 .rpm-main {
@@ -305,6 +496,7 @@ export default {
   position: relative;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
+  line-height: 1.22em;
 }
 
 .rpm-main .row {
@@ -377,6 +569,35 @@ export default {
   /* .hidden-panels .header-row, .hidden-panels .sidebar, .hidden-panels .view-type, .hidden-panels .diagram-options {
     display: none !important;
   } */
+  input[type="text"], textarea {
+    font: inherit !important;
+    color: inherit !important;
+  }
+
+  .sidebar textarea {
+    border: 0;
+    outline: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background: #f2f2f2;
+    transition: background-color 0.25s ease, box-shadow 0.4s ease;
+    padding: 8px;
+  }
+
+  .sidebar textarea:focus {
+      background: #fff;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidebar-padding {
+    padding: 15px;
+  }
+
+  .full-width {
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+
   .link:hover {
     text-decoration: underline;
   }
@@ -392,6 +613,10 @@ export default {
 
   .faded-text {
     color: #a6a4a4;
+  }
+
+  .highlighted-text {
+    color: #fe7862;
   }
 
   .rpm-button {
@@ -665,33 +890,6 @@ export default {
     transform: translate(0, 0);
   }
 
-  /* .info-buttons-wrapper .edit-icon .bar:before {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 3px;
-    height: 100%;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -2px;
-    background: #fff;
-    border-radius: 1.5px;
-  }
-
-  .info-buttons-wrapper .remove-icon .bar:before {
-    content: "";
-    display: block;
-    position: absolute;
-    height: 3px;
-    bottom: 50%;
-    width: 7px;
-    margin-bottom: -1.5px;
-    background: #fff;
-    border-radius: 1.5px;
-    transform: translate(-13px, 0);
-    transform-origin: 100% 50%;
-  } */
-
   .edit-button:hover .edit-icon .bar:before {
     transform: translate(0, 50%);
   }
@@ -717,5 +915,9 @@ export default {
 
   .buttons-zone .remove-button.disabled {
     text-decoration: line-through;
+  }
+
+  .rpm-main {
+    font-size: 14px;
   }
 </style>
