@@ -165,7 +165,8 @@ export default {
 
     GlobalSidebarEvents.$on('cancel-edit', () => {
       if (this.datum.data.new) {
-        this.$emit('cancel-new-node')
+        this.diagram.focusId = this.diagram.activeId
+        this.diagram.update(this.diagram.activeId)
       } else {
         this.$set(this.datum.data, 'draft', null)
       }
