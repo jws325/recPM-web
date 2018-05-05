@@ -81,6 +81,9 @@ export default function RPM (target, handler) {
     th.zoomG.attr('transform', d3.event.transform)
   })
 
+  th.zoom.filter(() => {
+    return d3.event.type === 'dblclick' ? !th.nodes.node().contains(d3.event.target) : true
+  })
   th.zoom.scaleExtent([0.5, 1.8])
 
   th.container = d3.select(target).append('div').attr('class', 'rpm-container').style('position', 'relative')
@@ -171,7 +174,7 @@ RPM.prototype.shake = function () {
 RPM.prototype.updateFromHash = function (isInitial) {
   var datum, th, hash, id
   th = this
-  hash = window.location.hash.replace(/(^#|\/$)/g, '')
+  hash = window.location.hash.replace(/(^#|\/$|(\?.*$))/g, '')
   id = hash.split('/').pop() || th.flower.id
   datum = th.getFlowerById(id)
   if (!datum) {
@@ -187,7 +190,7 @@ RPM.prototype.updateFromHash = function (isInitial) {
   th.update(id)
 }
 
-RPM.prototype.addItem = function (d) {
+RPM.prototype.addNode = function (d) {
   var th, node, key
   th = this
   if (th.currentDatum) {
@@ -244,7 +247,7 @@ RPM.prototype.addItem = function (d) {
   }
 }
 
-RPM.prototype.removeItem = function (id) {
+RPM.prototype.removeNode = function (id) {
   var th = this
   th.focusId = null
 
@@ -771,7 +774,7 @@ RPM.prototype.completeItem = function (id) {
       datum.data.progress = 0
       datum.data.status = ''
     } else {
-      // th.removeItem(id)
+      // th.removeNode(id)
       // datum.data.completed = true
       datum.data.status = 'completed'
     }
