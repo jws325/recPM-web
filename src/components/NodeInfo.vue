@@ -31,7 +31,7 @@
         </li>
       </ul>
     </div>
-    <span class="rpm-button comments-button" v-bind:class="{active: showComments}" v-on:click="commentsClick">
+    <span class="rpm-button comments-button" v-bind:class="{active: this.globalData.value.comments === 'Info'}" v-on:click="commentsClick">
       <span class="count-wrapper">
           <span class="count">
             <!-- Comments <vue-disqus-count v-bind:identifier="datum.data.id + 'team'" v-bind:shortname="disqusname" v-bind:api-key="disqusApiKey"></vue-disqus-count>/<vue-disqus-count v-bind:identifier="datum.data.id + 'voter'" v-bind:shortname="disqusname" v-bind:api-key="disqusApiKey"></vue-disqus-count> -->
@@ -54,10 +54,12 @@
 
 <script>
 import vueDisqusCount from './DisqusCount.vue'
+import GlobalSidebarEvents from './GlobalSidebarEvents.vue'
+import GlobalData from './GlobalData.vue'
 
 export default {
   name: 'nodeInfo',
-  props: [ 'datum', 'people', 'neighbors', 'viewType', 'disqusname', 'disqusApiKey', 'showComments' ],
+  props: [ 'datum', 'viewType', 'disqusname', 'disqusApiKey', 'showComments' ],
   data () {
     return {
       peopleMapping: {
@@ -69,7 +71,8 @@ export default {
         managers: [],
         dependencies: []
       },
-      noRemoveInfo: false
+      noRemoveInfo: false,
+      globalData: GlobalData
     }
   },
   watch: {
@@ -79,6 +82,9 @@ export default {
         this.updatePeople()
         this.updateDependencies()
       }
+    },
+    globalData () {
+      this.updatePeople()
     }
   },
   mounted: function () {
@@ -88,9 +94,8 @@ export default {
   methods: {
     updatePeople () {
       var type = this.peopleMapping[this.datum.data.type]
-
-      if (this.datum && this.datum.data[type] && this.people[type]) {
-        this.assigned[type] = this.people[type].filter((d) => {
+      if (this.datum && this.datum.data[type] && this.globalData.value.people && this.globalData.value.people[type]) {
+        this.assigned[type] = this.globalData.value.people[type].filter((d) => {
           return (this.datum.data[type].indexOf(d.id) > -1)
         })
       } else {
@@ -98,7 +103,9 @@ export default {
       }
     },
     commentsClick (val) {
-      this.$emit('comments-click', val)
+      this.$set(this.globalData.value, 'comments', this.globalData.value.comments === 'Info' ? '' : 'Info')
+      this.$emit('info-comments-click', this.globalData.value.comments === 'Info')
+      GlobalSidebarEvents.$emit('info-comments-click', this.globalData.value.comments === 'Info')
     },
     updateDependencies () {
       if (this.datum && this.datum.data.dependencies && this.neighbors) {
@@ -110,15 +117,10 @@ export default {
       }
     },
     edit () {
-      this.$emit('edit-click')
+      GlobalSidebarEvents.$emit('edit-node')
     },
     remove () {
-      // if (!this.datum.parent) {
-      //   this.noRemoveInfo = true
-      // } else {
-      //   this.$emit('remove-click')
-      // }
-      this.$emit('remove-click')
+      GlobalSidebarEvents.$emit('remove-node')
     }
   },
   components: {
@@ -194,7 +196,8 @@ export default {
     /* padding-bottom: 0; */
     /* margin: 0; */
     /* list-style: none; */
-    padding-left: 20px
+    padding-left: 20px;
+    margin-top: 0;
   }
 
   .top-ul > li {

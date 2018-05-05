@@ -21,7 +21,7 @@
 .rpm-container .breadcrumb-container {
     position: absolute;
     top: 0px;
-    left: 0;
+    left: 30px;
     right: 0;
     padding-top: 8px;
 }
@@ -458,7 +458,7 @@
 .rpm-svg .project-node .direction {
   opacity: 0;
   transform: scale(0.5);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.2s ease;
 }
 
 .rpm-svg .project-node[data-focus="true"] .direction {
@@ -467,7 +467,6 @@
 }
 
 .rpm-svg .project-node[data-active="true"] .direction {
-  opacity: 0.5;
   transform: scale(1) rotate(180deg);
 }
 

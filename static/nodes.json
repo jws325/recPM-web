@@ -1,0 +1,161 @@
+{
+  "companyName": "RecPM.io",
+  "name": "RPM",
+  "type": "project",
+  "importance": "normal",
+  "id": "total",
+  "children": [
+      {
+          "name": "Conduct Token Sale",
+          "type": "project",
+          "importance": "normal",
+          "id":"ico",
+          "dependencies": ["frontEndDemo", "whitepaper", "token", "preICO", "website"],
+          "children": [
+      {
+        "name": "Create Bounty Program",
+        "type": "task",
+        "progress": 0.0,
+        "importance": "critical",
+        "id":"bounty",
+        "status": "assigned",
+        "workers": ["w1", "w4"],
+        "dependencies": ["ann"]
+      },
+      {
+        "name": "Create Announcement",
+        "type": "task",
+        "progress": 0.0,
+        "importance": "critical",
+        "id":"ann",
+        "status": "assigned",
+        "workers": ["w1"]
+      },
+      {
+        "name": "Create Smart Contract",
+        "type": "task",
+        "progress": 0.0,
+        "importance": "critical",
+        "id":"smart",
+        "status": "assigned",
+        "workers": ["w3"]
+      },		
+      {
+        "name": "Complete legal analysis",
+        "type": "task",
+        "progress": 0.0,
+        "importance": "critical",
+        "id":"smart",
+        "status": "assigned",
+        "workers": ["w1"]
+      },					  
+      {
+        "name": "Engage public on social media",
+        "type": "task",
+        "progress": 0.0,
+        "importance": "critical",
+        "id":"socialMedia",
+        "status": "assigned",
+        "workers": ["w1", "w4"],
+        "recurring": true
+      }
+          ]
+      },
+      {
+          "name": "Complete Front End Demo",
+          "type": "task",
+          "progress": 0.75,
+          "importance": "critical",
+          "id":"frontEndDemo",
+          "dependencies": [],
+          "status": "assigned",
+          "workers": ["w2"],
+          "notes": "It works well but needs more handholding / context.",
+          "issues": [
+            {
+              "content": "limit minimum and maximum zoom level",
+              "created": "2018-04-04",
+              "id": "1"
+            },
+            {
+              "content": "right now new projects and tasks created by the project owner are hollow they should look identical to the existing tasks",
+              "created": "2017-04-04",
+              "id": "2"
+            },
+            {
+              "content": "there should be a way to add attachments to a project / task",
+              "created": "2019-04-08",
+              "id": "3"
+            }
+          ]	  
+      },
+      {
+          "name": "Complete Whitepaper",
+          "type": "task",
+          "progress": 0.5,
+          "importance": "critical",
+          "status": "assigned",
+          "id":"whitepaper",
+          "recurring": false,
+    "workers": ["w1"],
+    "notes": "Need to spruce up formatting and add images."
+      },
+      {
+          "name": "Complete RPM Token",
+          "type": "task",
+          "progress": 0.5,
+          "importance": "critical",
+          "id":"token",
+          "status": "assigned",
+    "workers": ["w3"],
+    "notes": "Check bounty code and add staking"			  
+      },
+      {
+          "name": "Create RecPM.io website",
+          "type": "task",
+          "progress": 0.1,
+          "importance": "critical",
+          "id":"website",
+          "status": "assigned",
+    "workers": ["w1"]
+      },
+      {
+          "name": "Create Social Media accounts",
+          "type": "task",
+          "progress": 0.25,
+          "importance": "critical",
+          "id":"social",
+          "status": "assigned",
+    "workers": ["w1"],
+    "notes": "Have Telegram, Medium. Need Facebook, Twitter, etc."			  
+      },		  
+      {
+          "name": "Conduct Presale",
+          "type": "project",
+          "importance": "critical",
+          "id":"preICO",
+          "dependencies": [],
+          "children": [
+      {
+        "name": "Contact Investors",
+        "type": "task",
+        "progress": 0.0,
+        "importance": "critical",
+        "id":"contactSaftInvestors",
+        "status": "assigned",
+        "workers": ["w1"]
+      },
+      {
+        "name": "Complete SAFT agreements",
+        "type": "task",
+        "progress": 0.0,
+        "importance": "critical",
+        "id":"saft",
+        "status": "assigned",
+        "workers": ["w1"],
+        "dependencies": ["contactSaftInvestors"]
+      }				 
+          ]
+      }
+  ]
+}

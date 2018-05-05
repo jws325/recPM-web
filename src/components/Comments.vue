@@ -1,18 +1,16 @@
 <template>
   <div class="comments">
-    <div>
+    <div class="comments-wrapper">
       <div class="comments-header">
         <div class="comments-tabs" v-bind:class="{right: activeTab === 'voter'}">
           <div v-bind:class="{active: activeTab === 'team'}" v-on:click="activeTab = 'team'">
-            <span class="point"></span> <span>Team Comments</span>
+            <span><span class="point"></span> <span>Team Comments</span></span>
           </div>
           <div v-bind:class="{active: activeTab === 'voter'}" v-on:click="activeTab = 'voter'">
-            <span class="point"></span> <span>Voter Comments</span>
+            <span><span class="point"></span> <span>Voter Comments</span></span>
           </div>
         </div>
       </div>
-    </div>
-    <div>
       <div class="comments-body">
         <transition name="slide-v">
           <div v-if="activeTab === 'team'">
@@ -74,21 +72,23 @@
 
 <style scoped>
 .comments {
-  display: table;
-  width: 100%;
+  position: relative;
   height: 100%;
 }
 
-.comments > div {
-  display: table-row;
-}
-
-.comments > div > div {
-  display: table-cell;
+.comments-wrapper {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow: auto;
+  right: 0;
 }
 
 .comments-header {
-  height: 1px;
+  height: 60px;
 }
 
 .comments-header .comments-tabs {
@@ -96,17 +96,20 @@
   /* border-bottom: 1px solid #f5f5f5; */
   overflow: hidden;
   position: relative;
+  display: flex;
+  height: 100%;
 }
 
 .comments-tabs > div {
-  float: left;
-  width: 50%;
-  text-align: center;
+  display: flex;
+  flex-grow: 1;
   position: relative;
   cursor: default;
-  padding: 20px 0;
   transition: background-color 0.3s;
   background-color: #f5f5f5;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .comments-tabs > div:hover {
@@ -158,7 +161,7 @@
   margin-left: -2px;
 }
 
-.comments-tabs > div.active > .point:before {
+.comments-tabs > div.active .point:before {
   transform: translate(0, 0);
   opacity: 1;
 }
@@ -178,6 +181,7 @@
 
 .comments-body {
   position: relative;
+  flex-grow: 1;
 }
 
 .comments-body > div {

@@ -1,20 +1,20 @@
 <template>
   <div class="issues sidebar-padding">
-    <div class="line">
-      <issue-form
-        :min-height="newIssueMinHeight"
-        :show-controls="newIssueIsActive"
-        :submit-text="'Save'"
-        :hide-remove-button="true"
-        v-model="newIssueText"
-        @focus="newIssueFocus"
-        @cancel="newIssueClose"
-        @submit="newIssueSave"
-        placeholder="New Issue"
-      ></issue-form>
-    </div>
-    <div class="issues-list">
-      <!-- <transition-group name="slide-h"> -->
+    <div class="issues-container">
+      <div class="line">
+        <issue-form
+          :min-height="newIssueMinHeight"
+          :show-controls="newIssueIsActive"
+          :submit-text="'Open'"
+          :hide-remove-button="true"
+          v-model="newIssueText"
+          @focus="newIssueFocus"
+          @cancel="newIssueClose"
+          @submit="newIssueSave"
+          placeholder="Open Issue"
+        ></issue-form>
+      </div>
+      <div class="issues-list">
         <div class="issue line" v-for="(issue, index) in (datum.data.issues || []).slice().reverse()" :key="issue.id" :class="{active: activeIssues[issue.id]}">
           <div class="static-view" v-if="!activeIssues[issue.id]" @click="editIssue(issue, index)" @mouseover="setMouseOver(issue, true)" @mouseout="setMouseOver(issue, false)">
             <div class="hover-bg"></div>
@@ -38,7 +38,7 @@
             <div class="issue-caption">#{{issue.id}} — <span>{{formatDate(issue.updated || issue.created)}}</span></div>
           </div>
         </div>
-      <!-- </transition-group> -->
+      </div>
     </div>
   </div>
 </template>
@@ -148,6 +148,7 @@ export default {
   margin-right: 5px;
   margin-top: -2px;
 }
+
 .issues {
   position: absolute;
   left: 0;
@@ -157,8 +158,15 @@ export default {
   overflow: auto;
 }
 
+.issues-container {
+  position: relative;
+  height: 100%;
+}
+
 .issue {
   position: relative;
+  /* display: inline-block; */
+  transition: all 0.2s;
 }
 
 .static-view * {
@@ -206,4 +214,15 @@ export default {
   color: #a6a4a4;
   margin-top: 3px;
 }
+
+.issue-enter, .issue-leave-to {
+  opacity: 0;
+  transform: translate(10px, 0);
+}
+
+.issue-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
 </style>

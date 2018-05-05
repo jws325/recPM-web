@@ -1,127 +1,59 @@
 <template>
   <div class="rpm-main">
-    <div class="row header-row" v-if="panels.header">
-      <header class="cell header-cell">
-        <main-header
-          v-bind:d="headerData"
-          v-on:add-item="addItem"
-          v-bind:view-type="viewType"
-          v-on:search="search"
-          v-bind:search-string="searchString">
-        </main-header>
-      </header>
-    </div>
-    <div class="row">
-      <div class="body cell" v-bind:class="{comments: showComments}">
-        <rpm-diagram
-          v-bind:nodes-data="rpmData.nodes"
-          v-on:select="applyDatum"
-          v-bind:search="searchString"
-          v-bind:show-proposed="showProposed"
-          v-bind:show-completed="showCompleted"
-          v-bind:view-type="viewType"
-          ref="diagramComponent">
-        </rpm-diagram>
-        <div class="diagram-options" v-if="panels.options">
-          <label class="proposed-switcher"><input type="checkbox" v-model="showProposed"> <span>Show Proposed</span>
-          <span class="faded-text">({{parentalDatum.proposedChildren && parentalDatum.proposedChildren.length ? parentalDatum.proposedChildren.length : 'none'}})</span>
-          </label><br>
-          <label class="completed-switcher"><input type="checkbox" v-model="showCompleted"> <span>Show Completed</span>
-          <span class="faded-text">({{parentalDatum.completedChildren && parentalDatum.completedChildren.length ? parentalDatum.completedChildren.length : 'none'}})</span>
-          </label>
-        </div>
-        <transition name="fade">
-          <div class="sidebar" v-if="!searchString && panels.sidebar">
-            <div id="sidebar-main-container">
-              <!-- <div class="info-tabs" v-bind:class="[tab + '-active']">
-                <div class="info-tabs-wrapper">
-                  <div v-for="(tabName, index) in tabs" :key="tabName" v-bind:class="[tabName + '-tab']" v-on:click="tab = index"><i></i></div>
-                  <div v-on:click="tab = 'info'" id="info-tab"><i></i></div>
-                  <div v-on:click="tab = 'issues'" id="issues-tab"><i></i></div>
-                  <div v-on:click="tab = 'attachments'" id="attachments-tab"><i></i></div>
-                </div>
-              </div> -->
-              <tabs v-bind:data="tabs" v-bind:tab-index="0" v-on:indexChanged="setTabIndex"></tabs>
-              <div id="sidebar-views-container" ref="sidebarViews">
-                <div id="sidebar-views-wrapper" ref="sidebarViewsWrapper">
-                  <div class="sidebar-view" data-name="Info">
-                    <transition name="fade">
-                      <div v-if="tabIndex === 0">
-                        <transition name="slide-h">
-                          <node-info
-                            v-if="!datum.empty && (!datum.data.draft && datum.data.name)"
-                            v-bind:datum="datum"
-                            v-bind:people="rpmData.people"
-                            v-bind:neighbors="datum.parent ? datum.parent.data.children : []"
-                            v-bind:show-comments="showComments"
-                            v-bind:view-type="viewType"
-                            v-bind:disqusname="disqusName"
-                            v-on:comments-click="commentsHandler"
-                            v-on:edit-click="editNode"
-                            v-on:remove-click="removeNode"
-                            v-bind:disqus-api-key="disqusApiKey">
-                          </node-info>
-                          <new-item
-                            v-if="datum.data.draft"
-                            v-on:save="save"
-                            v-on:remove="removeNode"
-                            v-on:cancel="cancelEdit"
-                            v-on:completeChanged="completeChanged"
-                            v-bind:datum="datum.data.draft"
-                            v-bind:people="rpmData.people"
-                            v-bind:neighbors="datum.parent ? datum.parent.data.children : []">
-                          </new-item>
-                        </transition>
-                      </div>
-                    </transition>
-                  </div>
-                  <div class="sidebar-view" data-name="Issues">
-                    <transition name="fade">
-                      <issues v-if="tabIndex === 1" v-bind:datum="datum" :lastVisit="issuesLastVisit()"></issues>
-                    </transition>
-                  </div>
-                  <div class="sidebar-view" data-name="Attachments">
-                    <transition name="fade">
-                      <div v-if="tabIndex === 2">
-                      </div>
-                    </transition>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="comments-wrapper">
-              <transition name="fade-long">
-                <vue-comments
-                  v-if="showComments"
-                  v-bind:shortname="disqusName"
-                  v-bind:identifier="datum.id"
-                  v-bind:api-key="disqusApiKey"
-                  v-bind:view-type="viewType">
-                </vue-comments>
-              </transition>
-            </div>
-          </div>
-        </transition>
-        <div class="view-type" v-if="panels.viewType">
-          <h3>Select User Role (For Demo)</h3>
-          <label><input type="radio" name="view-type" value="owner" v-model="viewType"> Project Owner</label><br>
-          <label><input type="radio" name="view-type" value="voter" v-model="viewType"> Voter</label>
-        </div>
+    <header v-if="panels.header">
+      <main-header
+        v-bind:d="headerData"
+        v-on:add-item="addNode"
+        v-bind:view-type="viewType"
+        v-on:search="search"
+        v-bind:search-string="searchString">
+      </main-header>
+    </header>
+    <section class="base">
+      <rpm-diagram
+        v-bind:nodes-data="globalData.value.nodes"
+        v-on:select="applyDatum"
+        v-bind:search="searchString"
+        v-bind:show-proposed="showProposed"
+        v-bind:show-completed="showCompleted"
+        v-bind:view-type="viewType"
+        ref="diagramComponent">
+      </rpm-diagram>
+      <div class="diagram-options" v-if="panels.options">
+        <label class="proposed-switcher"><input type="checkbox" v-model="showProposed"> <span>Show Proposed</span>
+        <span class="faded-text">({{parentalDatum.proposedChildren && parentalDatum.proposedChildren.length ? parentalDatum.proposedChildren.length : 'none'}})</span>
+        </label><br>
+        <label class="completed-switcher"><input type="checkbox" v-model="showCompleted"> <span>Show Completed</span>
+        <span class="faded-text">({{parentalDatum.completedChildren && parentalDatum.completedChildren.length ? parentalDatum.completedChildren.length : 'none'}})</span>
+        </label>
       </div>
-    </div>
+      <transition name="fade">
+        <sidebar
+          v-if="!searchString && panels.sidebar"
+          v-bind:datum="datum"
+          v-bind:view-type="viewType"
+          v-bind:disqus-name="disqusName"
+          v-bind:disqus-api-key="disqusApiKey"
+          ref="sidebar"
+        ></sidebar>
+      </transition>
+      <div class="view-type" v-if="panels.viewType">
+        <h3>Select User Role (For Demo)</h3>
+        <label><input type="radio" name="view-type" value="owner" v-model="viewType"> Project Owner</label><br>
+        <label><input type="radio" name="view-type" value="voter" v-model="viewType"> Voter</label>
+      </div>
+    </section>
   </div>
 </template>
 
 <script>
-import newItem from './NodeForm.vue'
 import mainHeader from './Header.vue'
 import rpmDiagram from './Diagram.vue'
-import nodeInfo from './NodeInfo.vue'
 import axios from 'axios'
-import vueComments from './Comments.vue'
-import tabs from './Tabs.vue'
-import issues from './Issues.vue'
-import moment from 'moment'
+import resize from './Resize.vue'
+import sidebar from './Sidebar.vue'
+import GlobalSidebarEvents from './GlobalSidebarEvents.vue'
+import GlobalData from './GlobalData.vue'
 
 export default {
   name: 'hello',
@@ -151,11 +83,10 @@ export default {
         projectUpvotes: 42,
         votesRemaining: 5
       },
-      rpmData: {},
+      nodesData: {},
       searchString: '',
       viewType: 'owner',
       disqusName: 'rpm-3',
-      showComments: false,
       showProposed: true,
       showCompleted: false,
       disqusApiKey: 'T7XbPlHEDeyXie9yImwHqxqLgUS0JZiWqFC0NHp2KMZHPcBvRj6rVdjmjnQRfBel',
@@ -167,26 +98,22 @@ export default {
         viewType: true
       },
       diagram: null,
-      tabs: [{name: 'Info'}, {name: 'Issues', highlight: true}, {name: 'Attachments'}],
-      tabIndex: 0
+      globalData: GlobalData
     }
   },
   methods: {
-    addItem (e) {
+    addNode (e) {
       if (this.viewType === 'voter') {
         this.showProposed = true
       }
-
       setTimeout(() => {
-        this.$emit('addItem', {type: e.type, proposed: this.viewType === 'voter', new: true})
+        this.diagram.addNode({type: e.type, proposed: this.viewType === 'voter', new: true})
       })
     },
     applyDatum (e) {
       this.datum = e.data
       this.searchString = ''
       this.updatePath()
-      this.tabs[1].highlight = this.newIssues()
-      // this.$emit('changedDatum', this.datum)
     },
     applyParentalDatum (e) {
       this.parentalDatum = e.data
@@ -194,163 +121,82 @@ export default {
     search (e) {
       this.searchString = e
     },
-    loadData: function (dataUrl) {
-      if (dataUrl) {
-        axios.get(dataUrl).then((d) => {
-          this.rpmData = d.data
-        })
-      }
-    },
-    save () {
-      for (var key in this.datum.data.draft) {
-        this.datum.data[key] = this.datum.data.draft[key]
-      }
-      this.datum.data.new = false
-      this.datum.data.draft = null
-      this.$emit('saveItem', this.datum)
-    },
-    commentsHandler (e) {
-      this.showComments = !this.showComments
-    },
-    editNode () {
-      this.$set(this.datum.data, 'draft', this.getDraft(this.datum.data))
-    },
-    cancelEdit () {
-      if (this.datum.data.new) {
-        this.$emit('cancelNewNode')
-      } else {
-        this.$set(this.datum.data, 'draft', null)
-      }
-    },
-    removeNode () {
-      this.$emit('removeNode', this.datum)
-    },
-    getDraft (d) {
-      var draft, key
-      draft = {}
-
-      for (key in d) {
-        if (key !== 'draft') {
-          draft[key] = cloneArray(d[key])
-        }
-      }
-      return draft
-
-      function cloneArray (value) {
-        if (!Array.isArray(value)) {
-          return value
-        }
-
-        var newArr = []
-        for (var i = 0; i < value.length; i++) {
-          newArr.push(value[i])
-        }
-
-        return newArr
-      }
-    },
-    completeChanged (e) {
-      this.$emit('completeChanged', e)
+    loadData: function () {
+      axios.get('/static/nodes.json').then((d) => {
+        GlobalData.set('nodes', d.data)
+        return axios.get('/static/people.json')
+      }).then((d) => {
+        GlobalData.set('people', d.data)
+      })
     },
     updatePath () {
-      // this.$router.push(this.$route.path + '#' + this.diagram.getBreadcrumb().map(v => v.id).join('/'))
-    },
-    setTabIndex (event) {
-      var el
-      this.tabIndex = event.index
-      el = this.$refs.sidebarViews.querySelectorAll('.sidebar-view[data-name="' + event.name + '"]')
-      if (el.length) {
-        this.$refs.sidebarViewsWrapper.style.transform = 'translate(' + (-el[0].offsetLeft / this.$refs.sidebarViewsWrapper.offsetWidth * 100) + '%, 0)'
-      }
-    },
-    issuesLastVisit () {
-      return window.localStorage.issuesLastVisit || {}
-    },
-    newIssues () {
-      var lastVisit = moment(this.issuesLastVisit())
-      if (this.datum.data.issues) {
-        for (let i = 0; i < this.datum.data.issues.length; i++) {
-          if (lastVisit.isBefore(moment(this.datum.data.issues[i].updated || this.datum.data.issues[i].created))) {
-            return true
-          }
-        }
-      }
-      return false
     }
   },
   watch: {
     datum: {
       handler: function (val, oldVal) {
         if (val === oldVal) {
-          this.$emit('changedDatum', this.datum)
+          this.diagram.refreshView()
         }
       },
       deep: true
     },
     $route (to, from) {
-      // console.log('route change')
     }
   },
   components: {
-    newItem,
     mainHeader,
     rpmDiagram,
-    nodeInfo,
-    vueComments,
-    tabs,
-    issues
+    resize,
+    sidebar
   },
   mounted: function () {
-    this.loadData('/static/data.json')
+    this.loadData()
     this.diagram = this.$refs.diagramComponent.diagram
     if (this.$route.query.panels === 'false') {
       for (let key in this.panels) {
         this.panels[key] = false
       }
     }
+
+    GlobalSidebarEvents.$on('remove-node', () => {
+      this.diagram.removeNode(this.datum.id)
+    })
+
+    GlobalSidebarEvents.$on('cancel-edit', () => {
+      if (this.datum.data.new) {
+        this.$emit('cancel-new-node')
+      } else {
+        this.$set(this.datum.data, 'draft', null)
+      }
+    })
+
+    GlobalSidebarEvents.$on('edit-node', () => {
+      this.diagram.addDraft(this.diagram.getFocusedDatum().data)
+      this.diagram.refreshView()
+    })
+
+    GlobalSidebarEvents.$on('save-node', () => {
+      for (var key in this.datum.data.draft) {
+        this.datum.data[key] = this.datum.data.draft[key]
+      }
+      this.datum.data.new = false
+      this.datum.data.draft = null
+      if (this.datum.data.progress === 1) {
+        this.diagram.completeItem(this.datum.id)
+      }
+    })
+
+    GlobalSidebarEvents.$on('complete-changed', () => {
+      this.$emit('complete-changed')
+    })
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.tabs {
-  margin: 0 15px;
-}
 
-#sidebar-main-container {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  height: 100%;
-}
-
-#sidebar-main-container > div {
-
-}
-
-#sidebar-views-container {
-  position: relative;
-  flex-grow: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-#sidebar-views-wrapper {
-  transition: transform 0.3s ease;
-  flex: 1 1 auto;
-  width: 300%;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-}
-
-#sidebar-views-container .sidebar-view {
-  flex-grow: 1;
-  flex-basis: 0;
-  position: relative;
-}
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600');
 .info-tabs {
@@ -379,144 +225,40 @@ export default {
   bottom: 0;
 }
 
-.info-tabs.info-active:after {
-  left: 0;
-}
-
-.info-tabs.attachments-active:after {
-  left: 100%;
-  margin-left: -42px;
-}
-
-.info-tabs.issues-active:after {
-  left: 50%;
-  margin-left: -21px;
-}
-
-.info-tabs .info-tabs-wrapper {
-  display: table;
-  /* table-layout: fixed; */
-  width: 100%;
-  height: 59px;
-}
-
-.info-tabs .info-tabs-wrapper > div {
-  display: table-cell;
-  vertical-align: middle;
-  text-align: center;
-  width: 33.333%;
-  line-height: 0;
-}
-
-.info-tabs .info-tabs-wrapper > div:first-child {
-  padding-left: 13px;
-  text-align: left;
-}
-
-.info-tabs .info-tabs-wrapper > div:last-child {
-  padding-right: 13px;
-  text-align: right;
-}
-
-.info-tabs .info-tabs-wrapper > div > i {
-  display: inline-block;
-  opacity: 0.6;
-}
-
-.info-tabs .info-tabs-wrapper > #info-tab i {
-  width: 14px;
-  height: 18px;
-  background: url('../assets/icons-assets/list-icon.svg') no-repeat center center;
-  background-size: contain;
-}
-
-.info-tabs .info-tabs-wrapper > #issues-tab i {
-  width: 16px;
-  height: 19px;
-  background: url('../assets/icons-assets/issue-icon.svg') no-repeat center center;
-  background-size: contain;
-  margin-left: -5px;
-}
-
-.info-tabs .info-tabs-wrapper > #attachments-tab i {
-  width: 19px;
-  height: 21px;
-  background: url('../assets/icons-assets/attachment-icon.svg') no-repeat center center;
-  background-size: contain;
-}
-
 .rpm-main {
-  overflow: hidden;
-}
-
-.rpm-diagram {
-  height: 100%;
-  position: absolute;
-  left: 30px;
-  right: 240px;
-  top: 0;
-}
-
-.sidebar, .rpm-svg g.offset {
-  transition: transform 500ms cubic-bezier(0.815, 0.145, 0.310, 0.915);
-}
-
-.sidebar {
-  width: 240px;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  background: #fff;
-  /* padding: 15px; */
-  border-left: 1px solid #f5f5f5;
-}
-
-.comments .sidebar {
-  transform: translate(-320px, 0);
-}
-
-.comments .rpm-diagram {
-  right: 350px;
-}
-
-.sidebar > * {
-  /* max-height: 100%;
-  font-size: 14px;
-  color: #6f6f6f;
-  overflow: auto;
-  text-align: left;
-  border-left: 1px solid #f5f5f5; */
-}
-
-.rpm-main {
-  display: table;
+  /* display: table; */
   width: 100%;
   height: 100%;
   position: relative;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   line-height: 1.22em;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* flex: 1 1 auto; */
+  align-items: stretch;
+  justify-content: stretch;
+  flex-wrap: wrap;
 }
 
-.rpm-main .row {
-  display: table-row;
+.rpm-main header {
+  /* height: 90px; */
 }
 
-.rpm-main .cell {
-  display: table-cell;
+.rpm-main .base {
+  flex-grow: 1;
+  position: relative;
+  display: flex;
+  justify-content: stretch;
+}
+
+.rpm-diagram {
+  flex-grow: 1;
 }
 
 .header-cell {
   height: 1px;
-}
-
-.rpm-main > .layout-wrapper {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
 }
 
 .body {
@@ -539,20 +281,6 @@ export default {
   font-weight: 600;
 }
 
-.comments-wrapper {
-  left: 100%;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 320px;
-  box-sizing: border-box;
-  padding: 0;
-}
-
-#disqus_thread {
-  height: 100%;
-}
-
 .view-type {
   position: absolute;
   left: 30px;
@@ -566,32 +294,11 @@ export default {
 </style>
 
 <style>
-  /* .hidden-panels .header-row, .hidden-panels .sidebar, .hidden-panels .view-type, .hidden-panels .diagram-options {
-    display: none !important;
-  } */
   input[type="text"], textarea {
     font: inherit !important;
     color: inherit !important;
   }
 
-  .sidebar textarea {
-    border: 0;
-    outline: 0;
-    width: 100%;
-    box-sizing: border-box;
-    background: #f2f2f2;
-    transition: background-color 0.25s ease, box-shadow 0.4s ease;
-    padding: 8px;
-  }
-
-  .sidebar textarea:focus {
-      background: #fff;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-  }
-
-  .sidebar-padding {
-    padding: 15px;
-  }
 
   .full-width {
     margin-left: -15px;
@@ -620,14 +327,11 @@ export default {
   }
 
   .rpm-button {
-    /* height: 34px; */
     border-radius: 100px;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    /* text-align: center; */
     display: inline-block;
     width: 100%;
-    /* line-height: 34px; */
     border: 1px solid #e3e3e3;
     padding: 8px;
     position: relative;
@@ -635,19 +339,11 @@ export default {
     overflow: hidden;
   }
 
-  .rpm-button:hover {
-    /* background-color: #fafafa; */
-  }
-
   .diagram-options {
     position: absolute;
     top: 30px;
     left: 30px;
     line-height: 22px;
-  }
-
-  .breadcrumb-container {
-    /* top: 30px !important; */
   }
 
   @keyframes spinner {
@@ -679,7 +375,6 @@ export default {
     top: -9px;
     border-radius: 3px;
     animation: spinner-color 2.5s ease infinite;
-    /* animation: spinner 0.4s linear infinite; */
     border: 3px solid #e5e5e5 !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -691,6 +386,13 @@ export default {
     background: linear-gradient(135deg, rgba(253,244,233,1) 0%,rgba(255,242,225,1) 100%);
     padding: 13px 14px;
     border-radius: 6px;
+  }
+
+  .no-transition-enter-active, .no-transition-leave-active {
+  }
+
+  .no-transition-enter, .no-transition-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    display: none;
   }
 
   .fade-enter-active, .fade-leave-active {
@@ -754,10 +456,6 @@ export default {
     transition: background-color 0.2s, color 0.3s, border 0.2s;
   }
 
-  .info-buttons-wrapper > *:not(:first-child) {
-    /* box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.04); */
-  }
-
   .info-buttons-wrapper > *:hover {
     background-color: #f5f5f5;
   }
@@ -780,7 +478,6 @@ export default {
     margin-right: 6px;
     background: #fff;
     display: none;
-    /* transform: scale(0.1, 0.1); */
   }
 
   .info-buttons-wrapper .icon:before {
@@ -792,13 +489,11 @@ export default {
     right: 0;
     bottom: 0;
     border-radius: 100%;
-    /* background: #d2d2d2; */
     transform: scale(0.9);
     opacity: 0.7;
   }
 
   .buttons-zone:hover .info-button .icon:before {
-    /* transform: scale(1, 1); */
     transform: scale(1);
     opacity: 1;
   }
@@ -841,28 +536,11 @@ export default {
 
   .info-buttons-wrapper .edit-icon .bar {
     transform: rotate(40deg);
-    /* overflow: hidden; */
   }
-
-  /* .buttons-zone:hover .edit-icon {
-    background: #4da9f1;
-  }
-
-  .buttons-zone:hover .remove-icon {
-    background: #f05b54;
-  } */
 
   .info-buttons-wrapper .cancel-icon .bar {
     transform: rotate(45deg);
   }
-
-/* .info-buttons-wrapper .cancel-icon .bar:before, .info-buttons-wrapper .cancel-icon .bar:after {
-    content: "";
-    position: absolute;
-    display: block;
-    background: #fff;
-    border-radius: 3px;
-  } */
 
   .info-buttons-wrapper .cancel-icon .bar:before {
     left: 2px;
@@ -917,7 +595,22 @@ export default {
     text-decoration: line-through;
   }
 
-  .rpm-main {
-    font-size: 14px;
+  .sidebar textarea {
+    border: 0;
+    outline: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background: #f2f2f2;
+    transition: background-color 0.25s ease, box-shadow 0.4s ease;
+    padding: 8px;
+  }
+
+  .sidebar textarea:focus {
+      background: #fff;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidebar-padding {
+    padding: 15px;
   }
 </style>

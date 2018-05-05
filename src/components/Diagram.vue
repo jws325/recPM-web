@@ -41,33 +41,6 @@ export default {
   mounted: function () {
     this.diagram = new RPM(this.$el, this.diagramHandler)
     this.loadData()
-    this.$parent.$on('addItem', (e) => {
-      this.diagram.addItem(e)
-    })
-    this.$parent.$on('saveItem', (e) => {
-      // this.diagram.focusId = this.diagram.activeId
-      // console.log(e)
-      if (e.data.progress === 1) {
-        this.diagram.completeItem(e.id)
-      }
-    })
-    this.$parent.$on('changedDatum', (e) => {
-      this.diagram.refreshView()
-    })
-    this.$parent.$on('editNode', (e) => {
-      this.diagram.addDraft(this.diagram.getFocusedDatum().data)
-      this.diagram.refreshView()
-    })
-    this.$parent.$on('removeNode', (e) => {
-      this.diagram.removeItem(this.diagram.focusId)
-    })
-    this.$parent.$on('cancelNewNode', (e) => {
-      this.diagram.focusId = this.diagram.activeId
-      this.diagram.update(this.diagram.activeId)
-    })
-    this.$parent.$on('completeChanged', (e) => {
-      this.diagram.prepareItemToComplete(this.diagram.focusId, !(e < 1 || !e))
-    })
   },
   methods: {
     updateProposedVisibility () {
