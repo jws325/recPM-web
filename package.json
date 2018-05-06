@@ -11,14 +11,14 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "axios": "^0.16.2",
+    "d3": "^4",
+    "jsonp": "0.2.1",
+    "moment": "2.22.0",
     "vue": "^2.4.2",
     "vue-router": "^2.7.0",
-    "d3": "^4",
-    "axios": "^0.16.2",
-    "jsonp": "0.2.1",
-    "vuejs-datepicker": "^0.9.15",
-    "moment": "2.22.0",
-    "vue-textarea-autosize": "1.0.4"
+    "vue-textarea-autosize": "1.0.4",
+    "vuejs-datepicker": "^0.9.15"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

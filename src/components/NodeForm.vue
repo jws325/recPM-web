@@ -80,7 +80,15 @@
       <div class="section depends">
           <label class="section-label"><input type="checkbox" v-model="onDependsOn"> Depends On</label>
           <ul v-if="onDependsOn && neighbors.length > 0">
-              <li v-for="neighbor in neighbors" :key="neighbor.id" v-if="neighbor.id !== datum.id" v-bind:class="{'depends-disabled': neighbor.recurring}"><label><div class="recurring-icon" v-if="neighbor.recurring"></div><input type="checkbox" v-if="!neighbor.recurring" v-bind:value="neighbor.id" v-model="datum.dependencies"> {{neighbor.name}}</label></li>
+              <li v-for="neighbor in neighbors" :key="neighbor.id" v-if="neighbor.id !== datum.id" v-bind:class="{'depends-disabled': neighbor.recurring}">
+                <label class="dependency-label">
+                  <div class="recurring-icon" v-if="neighbor.recurring"></div>
+                  <div>
+                    <input type="checkbox" v-if="!neighbor.recurring" v-bind:value="neighbor.id" v-model="datum.dependencies">
+                  </div>
+                  <div class="dependency-name">{{neighbor.name}}</div>
+                </label>
+              </li>
           </ul>
           <div class="info" v-if="onDependsOn && neighbors.length <= 1">
             Requires more than one project or task on level of this {{datum.type}} to create dependency
@@ -108,10 +116,12 @@
 <script>
 import progressSlider from './ProgressSlider.vue'
 import slideText from './SlideText.vue'
+import GlobalSidebarEvents from './GlobalSidebarEvents.vue'
+import GlobalData from './GlobalData.vue'
 
 export default {
-  name: 'newItem',
-  props: ['datum', 'people', 'neighbors'],
+  name: 'NodeForm',
+  props: ['datum'],
   data () {
     return {
       importanceLevels: [
@@ -132,7 +142,10 @@ export default {
         project: 'managers'
       },
       isRecurring: false,
-      recurringCompleted: false
+      recurringCompleted: false,
+      neighbors: [],
+      people: [],
+      globalData: GlobalData
     }
   },
   methods: {
@@ -157,6 +170,7 @@ export default {
       this.updatePeople()
     },
     updatePeople () {
+      this.people = GlobalData.value.people || []
       var type = this.peopleMapping[this.datum.type]
 
       if (this.datum && this.people[type] && this.datum[type]) {
@@ -171,23 +185,25 @@ export default {
       if (this.recurringCompleted) {
         this.datum.progress = 1
       }
-      this.$emit('save')
+      GlobalSidebarEvents.$emit('save-node')
     },
     remove () {
-      this.$emit('remove')
+      GlobalSidebarEvents.$emit('remove-node')
     },
     cancel () {
-      this.$emit('cancel')
+      GlobalSidebarEvents.$emit('cancel-edit')
     },
     progressChanged (val) {
       this.datum.progress = val
       this.datum.status = val === 1 ? 'completed' : this.initialStatus
     },
     completeChanged (e) {
-      this.$emit('completeChanged', e)
+      GlobalSidebarEvents.$emit('complete-changed', e)
     },
     init () {
       this.updatePeople()
+      this.updateNeighbors()
+      this.$watch('globalData.value.people', () => { this.updatePeople() })
       this.$set(this.datum, '_dependencies', this.datum.dependencies || [])
       this.isRecurring = this.datum.recurring
       this.onDependsOn = !!(this.datum.dependencies && this.datum.dependencies.length)
@@ -208,6 +224,9 @@ export default {
     },
     removeAttachment (index) {
       this.datum.attachments.splice(index, 1)
+    },
+    updateNeighbors () {
+      this.neighbors = this.datum.parent ? this.datum.parent.data.children : []
     }
   },
   watch: {
@@ -221,6 +240,7 @@ export default {
         if (this.onDependsOn) {
           this.datum._dependencies = this.datum.dependencies
         }
+        this.updateNeighbors()
       },
       deep: true
     },
@@ -235,7 +255,7 @@ export default {
       this.$set(this.datum, 'recurring', this.isRecurring)
     },
     recurringCompleted (e) {
-      this.$emit('completeChanged', e)
+      GlobalSidebarEvents.$emit('complete-changed', e)
     }
   },
   mounted: function () {
@@ -250,6 +270,14 @@ export default {
 
 
 <style scoped>
+.dependency-name {
+  padding-left: 5px;
+}
+
+.dependency-label {
+  display: flex;
+  flex-direction: row;
+}
 
 .section.files .attach-icon {
   width: 15px;

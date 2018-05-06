@@ -1,6 +1,12 @@
 <template>
-  <div class="tabs" ref="tabs">
-    <div class="tab-item" v-bind:class="{highlight: tab.highlight}" v-for="(tab, index) in data" :key="tab.name" v-on:click="changeIndex(index, tab, $event)">{{tab.name || tab}}</div>
+  <div class="tabs" ref="tabs" @mouseover="mouseOver" @mouseout="mouseOut" :class="{'pointer-transition': pointerTransition}">
+    <div class="tab-item" 
+      v-for="(tab, index) in data" 
+      :key="tab.name" 
+      :data-name="tab.name"
+      v-if="!tab.disabled"
+      :class="{highlight: tab.highlight, active: deFactoActiveTab === tab.name}" 
+      v-on:click="click(index, tab)">{{tab.name || tab}}<div class="tab-pointer"></div></div>
     <div class="tab-pointer" ref="tabPointer"></div>
   </div>
 </template>
@@ -8,29 +14,74 @@
 <script>
 export default {
   name: 'tabs',
-  props: ['data', 'tabIndex'],
+  props: ['data', 'activeTab'],
   data () {
     return {
-      index: 0
+      _activeTabIndex: 0,
+      deJureActiveTab: '',
+      deFactoActiveTab: '',
+      pointerTransition: false
     }
   },
   methods: {
-    changeIndex (index, tab) {
-      this.index = index
-      this.updatePointer()
-      this.$emit('indexChanged', {index: index, name: tab.name})
+    click (index, tab) {
+      this.pointerTransition = true
+      this.deJureActiveTab = tab.name
+      this.changeTab(tab.name, 'click')
     },
-    updatePointer () {
-      var el = this.$refs.tabs.querySelectorAll('.tab-item')[this.index]
-      this.$refs.tabPointer.style.left = el.offsetLeft + 'px'
-      this.$refs.tabPointer.style.width = el.offsetWidth + 'px'
+    changeTab (name, type) {
+      var index
+      index = this.findTabIndex(name)
+      this.deFactoActiveTab = name
+      this.$emit('tabChanged', {index: index, oldIndex: this._activeTabIndex, tab: this.data[index], type: type})
+      this._activeTabIndex = index
+      this.updatePointer()
+    },
+    updatePointer (noTransition) {
+      var el
+      el = this.$refs.tabs.querySelectorAll('.tab-item[data-name="' + this.deFactoActiveTab + '"]')[0]
+      if (el) {
+        this.$refs.tabPointer.style.left = el.offsetLeft + 'px'
+        this.$refs.tabPointer.style.width = el.offsetWidth + 'px'
+      }
+    },
+    mouseOver () {
+      this.updatePointer()
+    },
+    mouseOut () {
+      this.pointerTransition = false
+    },
+    findTabIndex (name) {
+      return this.data.findIndex((value) => {
+        return value.name === name
+      })
+    },
+    initActiveTab () {
+      if (!this.data || !this.data.length) {
+        return this.changeTab('')
+      }
+      var newIndex
+      newIndex = this.findTabIndex(this.deJureActiveTab)
+      if (newIndex < 0) {
+        newIndex = Math.max(0, Math.min(this._activeTabIndex || 0, this.data.length - 1))
+        this.changeTab(this.data[newIndex].name)
+      } else {
+        this.changeTab(this.deJureActiveTab)
+      }
     }
   },
   mounted () {
-    this.index = this.tabIndex
-    this.updatePointer()
+    this.deJureActiveTab = this.activeTab
+    this.deFactoActiveTab = this.activeTab
+    this.initActiveTab()
   },
   watch: {
+    data: {
+      handler (n, o) {
+        this.initActiveTab()
+      },
+      deep: true
+    }
   }
 }
 </script>
@@ -66,17 +117,44 @@ export default {
     opacity: 0.8;
   }
 
-  .tab-pointer {
-    position: absolute;
-    height: 2px;
-    bottom: 0;
-    background: #8e8e8e;
+  .tabs.pointer-transition > .tab-pointer  {
+    opacity: 1;
+  }
+
+  .tabs > .tab-pointer  {
+    opacity: 0;
     transition: left 0.2s, width 0.2s;
     transition-timing-function: ease;
   }
 
+  .tab-pointer {
+    position: absolute;
+    height: 2px;
+    bottom: 0;
+    background: #7ae8e1;
+  }
+
   .tab-item {
     position: relative;
+    transition: color 0.2s;
+  }
+
+  .tab-item .tab-pointer {
+    left: 0;
+    right: 0;
+    opacity: 0;
+  }
+
+  .tab-item.active {
+    color: #27cdc2;
+  }
+
+  .tab-item.active .tab-pointer {
+    opacity: 1;
+  }
+
+  .tabs.pointer-transition .tab-item .tab-pointer {
+    opacity: 0;
   }
 
   .tab-item:after {

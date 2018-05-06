@@ -1,44 +1,40 @@
 <template>
-  <div class="header" v-on:mouseover="hold=false" v-on:mouseout="hold=true">
-    <div class="voter-info" v-if="viewType === 'voter'">
-    </div>
-    <div class="main-header">
-      <div class="project-info">
-        <span class="company-name">{{d.companyName}}</span><br>
-        <span v-bind:class="{'short-address': shortProjectAddress}">
-          <label class="header-fade">Project Address: </label>
-          <strong class="address active-text" v-bind:title="d.projectAddress" v-on:click="shortProjectAddress = !shortProjectAddress">{{d.projectAddress | shorten(shortProjectAddress ? 4 : Infinity, 3)}}</strong>
-        </span>
-        <div class="project-upvotes">
-          <label class="header-fade">Upvotes:</label>
-          <strong>{{d.projectUpvotes}}</strong>
-          <span v-if="viewType === 'voter'">
-            <transition name="shrink">
-              <span class="upvotes" v-if="upvotes > 0">+ <slide-text :value="upvotes"></slide-text></span>
-            </transition>
-            <div class="voting">
-              <div v-on:click="changeVote(-1)">−</div><div :class="{upvoted: upvotes > 0}" v-on:click="changeVote(1)">+</div>
-            </div>
-            <!-- <div class="vote-icon" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()"></div> -->
-            <!-- <div class="vote-button" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()">Upvote</div> -->
-          </span>
-        </div>
-      </div>
-      <div class="center">
-        <span v-if="!searchString">
-          <div v-for="button in buttons" :key="button.name" class="add-button" v-bind:class="[button.class]" v-on:click="$emit('add-item', button)">
-            <div class="icon"></div>
-            <div class="name header-fade">{{viewType === 'owner' ? button.ownerName : button.voterName}}</div>
+  <div class="main-header" v-on:mouseover="hold=false" v-on:mouseout="hold=true">
+    <div class="project-info">
+      <span class="company-name">{{d.companyName}}</span><br>
+      <span v-bind:class="{'short-address': shortProjectAddress}">
+        <label class="header-fade">Project Address: </label>
+        <strong class="address active-text" v-bind:title="d.projectAddress" v-on:click="shortProjectAddress = !shortProjectAddress">{{d.projectAddress | shorten(shortProjectAddress ? 4 : Infinity, 3)}}</strong>
+      </span>
+      <div class="project-upvotes">
+        <label class="header-fade">Upvotes:</label>
+        <strong>{{d.projectUpvotes}}</strong>
+        <span v-if="viewType === 'voter'">
+          <transition name="shrink">
+            <span class="upvotes" v-if="upvotes > 0">+ <slide-text :value="upvotes"></slide-text></span>
+          </transition>
+          <div class="voting">
+            <div v-on:click="changeVote(-1)">−</div><div :class="{upvoted: upvotes > 0}" v-on:click="changeVote(1)">+</div>
           </div>
+          <!-- <div class="vote-icon" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()"></div> -->
+          <!-- <div class="vote-button" v-bind:class="{'voted': projectIsVoted}" v-on:click="toggleVote()">Upvote</div> -->
         </span>
-        <span class="search-text" v-if="searchString">Search</span>
       </div>
-      <div>
-        <search-input v-bind:hold="hold" v-on:search="search"></search-input><br>
-        <div v-if="viewType === 'voter'">
-          <label class="header-fade">My Address: </label><strong v-bind:title="d.voterAddress" v-on:click="shortVoterAddress = !shortVoterAddress" class="address active-text">{{d.voterAddress | shorten(shortVoterAddress ? 4 : Infinity, 3) }}</strong><br>
-          <label class="header-fade">Votes Remaining: </label><strong><slide-text :value="d.votesRemaining - upvotes"></slide-text></strong>
+    </div>
+    <div class="center">
+      <span v-if="!searchString">
+        <div v-for="button in buttons" :key="button.name" class="add-button" v-bind:class="[button.class]" v-on:click="$emit('add-item', button)">
+          <div class="icon"></div>
+          <div class="name header-fade">{{viewType === 'owner' ? button.ownerName : button.voterName}}</div>
         </div>
+      </span>
+      <span class="search-text" v-if="searchString">Search</span>
+    </div>
+    <div>
+      <search-input v-bind:hold="hold" v-on:search="search"></search-input><br>
+      <div v-if="viewType === 'voter'">
+        <label class="header-fade">My Address: </label><strong v-bind:title="d.voterAddress" v-on:click="shortVoterAddress = !shortVoterAddress" class="address active-text">{{d.voterAddress | shorten(shortVoterAddress ? 4 : Infinity, 3) }}</strong><br>
+        <label class="header-fade">Votes Remaining: </label><strong><slide-text :value="d.votesRemaining - upvotes"></slide-text></strong>
       </div>
     </div>
   </div>
@@ -80,30 +76,30 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .header {
+  .main-header {
     border-bottom: 1px solid #f5f5f5;
     transition: border 0.5s ease;
     line-height: 1.4em;
   }
 
-  .header .search-input-wrapper {
+  .main-header .search-input-wrapper {
     margin-right: -5px;
   }
 
-  .header label {
+  .main-header label {
     color: #9A9A9A;
   }
 
-  .header .header-fade {
+  .main-header .header-fade {
     opacity: 0.5;
     transition: opacity 0.5s ease;
   }
 
-  .header:hover {
+  .main-header:hover {
     border-bottom: 1px solid #ebebeb;
   }
 
-  .header:hover  .header-fade {
+  .main-header:hover  .header-fade {
     opacity: 1;
   }
 
@@ -167,7 +163,7 @@ export default {
       display: table;
       width: 100%;
       table-layout: fixed;
-      height: 86px;
+      height: 90px;
       box-sizing: border-box;
   }
 
